@@ -16,16 +16,14 @@ public sealed class BlockRule : INotifyPropertyChanged
 
     public required string DisplayName { get; init; }
 
+    public required string ListType { get; init; }
+
     public bool IsEnabled
     {
         get => _isEnabled;
         set
         {
-            if (_isEnabled == value)
-            {
-                return;
-            }
-
+            if (_isEnabled == value) return;
             _isEnabled = value;
             OnPropertyChanged();
         }
@@ -36,11 +34,7 @@ public sealed class BlockRule : INotifyPropertyChanged
         get => _maxMinutes;
         set
         {
-            if (_maxMinutes == value)
-            {
-                return;
-            }
-
+            if (_maxMinutes == value) return;
             _maxMinutes = value;
             OnPropertyChanged();
         }

@@ -81,17 +81,17 @@ public sealed class ActivityStore
         using var connection = new SqliteConnection(_connectionString);
         connection.Open();
         using var command = connection.CreateCommand();
-        command.CommandText = "SELECT target_type, target_key, display_name, is_enabled, max_minutes FROM block_rules ORDER BY target_type, display_name;";
+        command.CommandText = "SELECT target_type, target_key, display_name, is_enabled, max_minutes, COALESCE(list_type, 'blocked') FROM block_rules ORDER BY list_type, target_type, display_name;";
         using var reader = command.ExecuteReader();
         var rules = new List<BlockRuleRecord>();
         while (reader.Read())
         {
-            rules.Add(new BlockRuleRecord(reader.GetString(0), reader.GetString(1), reader.GetString(2), reader.GetInt32(3) == 1, reader.GetInt32(4)));
+            rules.Add(new BlockRuleRecord(reader.GetString(0), reader.GetString(1), reader.GetString(2), reader.GetInt32(3) == 1, reader.GetInt32(4), reader.GetString(5)));
         }
         return rules;
     }
 
-    public bool EnsureRuleExists(string targetType, string targetKey, string displayName, int maxMinutes = 30)
+    public bool EnsureRuleExists(string targetType, string targetKey, string displayName, int maxMinutes = 30, string listType = "blocked")
     {
         using var connection = new SqliteConnection(_connectionString);
         connection.Open();
@@ -105,13 +105,41 @@ public sealed class ActivityStore
         }
 
         using var insertCommand = connection.CreateCommand();
-        insertCommand.CommandText = "INSERT INTO block_rules (target_type, target_key, display_name, is_enabled, max_minutes) VALUES ($type, $key, $display, 0, $minutes);";
+        insertCommand.CommandText = "INSERT INTO block_rules (target_type, target_key, display_name, is_enabled, max_minutes, list_type) VALUES ($type, $key, $display, 1, $minutes, $list);";
         insertCommand.Parameters.AddWithValue("$type", targetType);
         insertCommand.Parameters.AddWithValue("$key", targetKey);
         insertCommand.Parameters.AddWithValue("$display", displayName);
         insertCommand.Parameters.AddWithValue("$minutes", maxMinutes);
+        insertCommand.Parameters.AddWithValue("$list", listType);
         insertCommand.ExecuteNonQuery();
         return true;
+    }
+
+    public void SetListType(string targetType, string targetKey, string listType)
+    {
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+        using var command = connection.CreateCommand();
+        command.CommandText = "UPDATE block_rules SET list_type = $list WHERE target_type = $type AND target_key = $key;";
+        command.Parameters.AddWithValue("$list", listType);
+        command.Parameters.AddWithValue("$type", targetType);
+        command.Parameters.AddWithValue("$key", targetKey);
+        command.ExecuteNonQuery();
+    }
+
+    public void DeleteBlockRule(string targetType, string targetKey)
+    {
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            DELETE FROM block_rules
+            WHERE target_type = $type AND target_key = $key;
+            """;
+        command.Parameters.AddWithValue("$type", targetType);
+        command.Parameters.AddWithValue("$key", targetKey);
+        command.ExecuteNonQuery();
     }
 
     private void EnsureDatabase()
@@ -146,16 +174,24 @@ public sealed class ActivityStore
             );
             """;
         rulesCommand.ExecuteNonQuery();
+
+        try
+        {
+            using var migrateCommand = connection.CreateCommand();
+            migrateCommand.CommandText = "ALTER TABLE block_rules ADD COLUMN list_type TEXT NOT NULL DEFAULT 'blocked';";
+            migrateCommand.ExecuteNonQuery();
+        }
+        catch { }
     }
 
     private void EnsureDefaultRules()
     {
-        EnsureRuleExists("website", "youtube.com", "youtube.com");
-        EnsureRuleExists("website", "x.com", "x.com");
-        EnsureRuleExists("website", "discord.com", "discord.com");
-        EnsureRuleExists("app", "youtube", "YouTube app");
-        EnsureRuleExists("app", "twitter", "Twitter/X app");
-        EnsureRuleExists("app", "discord", "Discord app");
+        EnsureRuleExists("website", "youtube.com", "youtube.com", 60, "allowed");
+        EnsureRuleExists("website", "x.com", "x.com", 30, "allowed");
+        EnsureRuleExists("website", "discord.com", "discord.com", 30, "allowed");
+        EnsureRuleExists("app", "youtube", "YouTube app", 60, "allowed");
+        EnsureRuleExists("app", "twitter", "Twitter/X app", 30, "allowed");
+        EnsureRuleExists("app", "discord", "Discord app", 30, "allowed");
     }
 
     private static void RecordUsage(SqliteConnection connection, DateTime date, string type, string key, string category, string subtitle, int seconds)

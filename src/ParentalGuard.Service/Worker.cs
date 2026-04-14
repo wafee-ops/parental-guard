@@ -1,6 +1,9 @@
 using System.Diagnostics;
+using Titanium.Web.Proxy;
+using Titanium.Web.Proxy.Models;
 
 namespace ParentalGuard.Service;
+
 
 public class Worker : BackgroundService
 {
@@ -8,9 +11,26 @@ public class Worker : BackgroundService
     private readonly DesktopActivityTracker _tracker = new();
     private readonly ActivityStore _store;
     private readonly HostsFileBlocker _hostsFileBlocker = new();
+    private readonly FirewallWebsiteBlocker _firewallBlocker;
+    private readonly ProxyServer _proxyServer = new();
     private DateTime _lastBlockActionAt = DateTime.MinValue;
     private DateTime _lastHostsSyncAt = DateTime.MinValue;
+    private DateTime _lastFirewallSyncAt = DateTime.MinValue;
     private DateTime _lastProcessSweepAt = DateTime.MinValue;
+
+    private static readonly HashSet<string> ProtectedProcesses = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "ParentalGuard.UI", "ParentalGuard.Service", "ParentalGuard.App", "dotnet",
+        "explorer", "svchost", "csrss", "lsass", "services", "winlogon", "wininit",
+        "dwm", "taskmgr", "SearchHost", "RuntimeBroker", "ShellExperienceHost",
+        "StartMenuExperienceHost", "SearchIndexer", "sihost", "taskhostw", "ctfmon",
+        "conhost", "fontdrvhost", "smss", "Registry", "WUDFHost", "WmiPrvSE",
+        "MemCompression", "System", "SystemSettings", "SecurityHealthService",
+        "SecurityHealthSystray", "ApplicationFrameHost", "SearchApp", "TextInputHost",
+        "Microsoft.Windows.ShellExperienceHost", "desktop", " idle"
+    };
+
+    private static int SelfProcessId => Environment.ProcessId;
 
     public Worker(ILogger<Worker> logger)
     {
@@ -20,6 +40,40 @@ public class Worker : BackgroundService
             "ParentalGuard",
             "usage.db");
         _store = new ActivityStore(appDataPath);
+        _firewallBlocker = new FirewallWebsiteBlocker(logger);
+
+        SetupProxyServer();
+    }
+
+    private void SetupProxyServer()
+    {
+        _proxyServer.BeforeRequest += async (sender, e) =>
+        {
+            var rules = _store.LoadBlockRules();
+            var host = e.HttpClient.Request.RequestUri.Host.ToLowerInvariant();
+
+            foreach (var rule in rules.Where(r => r.IsEnabled && r.TargetType == "website"))
+            {
+                if (host.Contains(rule.TargetKey, StringComparison.OrdinalIgnoreCase))
+                {
+                    var usageKey = NormalizeRuleKey("website", host);
+                    var seconds = _store.GetUsageSecondsForToday("website", usageKey);
+
+                    if (seconds >= rule.MaxMinutes * 60)
+                    {
+                        e.GenericResponse(
+                            "Website blocked by ParentalGuard due to time limit.",
+                            System.Net.HttpStatusCode.Forbidden);
+                        return;
+                    }
+                }
+            }
+        };
+
+        var endpoint = new ExplicitProxyEndPoint(System.Net.IPAddress.Any, 8080);
+        _proxyServer.AddEndPoint(endpoint);
+        _proxyServer.Start();
+        _logger.LogInformation("Proxy server started on port 8080");
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -28,25 +82,12 @@ public class Worker : BackgroundService
         {
             var sample = _tracker.Capture();
             _store.RecordSample(sample);
-            EnsureRulesForSample(sample);
             var rules = _store.LoadBlockRules();
             SyncHostsFileIfNeeded(rules);
+            await SyncFirewallIfNeededAsync(rules);
             EnforceForegroundRules(sample, rules);
             SweepBlockedProcessesIfNeeded(rules);
             await Task.Delay(1000, stoppingToken);
-        }
-    }
-
-    private void EnsureRulesForSample(ActivitySample sample)
-    {
-        if (sample.ProcessId > 0 && sample.ProcessName != "desktop")
-        {
-            _store.EnsureRuleExists("app", NormalizeRuleKey("app", sample.ProcessName), sample.AppName);
-        }
-
-        if (!string.IsNullOrWhiteSpace(sample.WebsiteDomain))
-        {
-            _store.EnsureRuleExists("website", NormalizeRuleKey("website", sample.WebsiteDomain!), sample.WebsiteDomain!);
         }
     }
 
@@ -58,7 +99,7 @@ public class Worker : BackgroundService
         }
 
         var blockedDomains = rules
-            .Where(rule => rule.TargetType == "website" && rule.IsEnabled)
+            .Where(rule => rule.TargetType == "website" && rule.ListType == "blocked")
             .Select(rule => NormalizeRuleKey("website", rule.TargetKey))
             .Where(rule => !string.IsNullOrWhiteSpace(rule))
             .ToList();
@@ -75,45 +116,92 @@ public class Worker : BackgroundService
         }
     }
 
+    private async Task SyncFirewallIfNeededAsync(IReadOnlyCollection<BlockRuleRecord> rules)
+    {
+        if (DateTime.Now - _lastFirewallSyncAt < TimeSpan.FromMinutes(2))
+        {
+            return;
+        }
+
+        var blockedDomains = rules
+            .Where(rule => rule.TargetType == "website" && rule.ListType == "blocked")
+            .Select(rule => NormalizeRuleKey("website", rule.TargetKey))
+            .Where(rule => !string.IsNullOrWhiteSpace(rule))
+            .ToList();
+
+        try
+        {
+            await _firewallBlocker.SyncBlockedWebsitesAsync(blockedDomains);
+            _lastFirewallSyncAt = DateTime.Now;
+        }
+        catch (Exception ex)
+        {
+            _lastFirewallSyncAt = DateTime.Now;
+            _logger.LogError(ex, "Failed to sync firewall rules for blocked websites");
+        }
+    }
+
     private void EnforceForegroundRules(ActivitySample sample, IReadOnlyCollection<BlockRuleRecord> rules)
     {
+        if (ProtectedProcesses.Contains(sample.ProcessName)) return;
         if (sample.ProcessId <= 0 || DateTime.Now - _lastBlockActionAt < TimeSpan.FromSeconds(2))
         {
             return;
         }
 
-        foreach (var rule in rules.Where(rule => rule.IsEnabled))
-        {
-            var isMatch = rule.TargetType == "website"
-                ? MatchesWebsiteRule(rule.TargetKey, sample.WebsiteDomain)
-                : MatchesAppRule(rule.TargetKey, sample);
+        var matchedRule = rules.FirstOrDefault(r =>
+            r.TargetType == "app" && MatchesAppRule(r.TargetKey, sample));
 
-            if (!isMatch)
+        if (matchedRule is null)
+        {
+            if (!IsBrowserProcess(sample.ProcessName)) return;
+
+            var matchedWebsite = rules.FirstOrDefault(r =>
+                r.TargetType == "website" &&
+                MatchesWebsiteRule(r.TargetKey, sample.WebsiteDomain));
+
+            if (matchedWebsite is null)
             {
-                continue;
+                return;
             }
 
-            var usageKey = rule.TargetType == "website"
-                ? NormalizeRuleKey("website", sample.WebsiteDomain ?? rule.TargetKey)
-                : ResolveAppUsageKey(rule.TargetKey, sample);
-            var seconds = _store.GetUsageSecondsForToday(rule.TargetType, usageKey);
-            if (seconds < rule.MaxMinutes * 60)
+            if (matchedWebsite.ListType == "allowed")
             {
-                continue;
+                var usageKey = NormalizeRuleKey("website", sample.WebsiteDomain ?? matchedWebsite.TargetKey);
+                var seconds = _store.GetUsageSecondsForToday("website", usageKey);
+                if (seconds < matchedWebsite.MaxMinutes * 60) return;
             }
 
             try
             {
-                KillProcessById(sample.ProcessId, rule.DisplayName, rule.MaxMinutes);
+                KillProcessById(sample.ProcessId, matchedWebsite.DisplayName, matchedWebsite.MaxMinutes);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to block process {ProcessId}", sample.ProcessId);
             }
+            return;
+        }
 
-            break;
+        if (matchedRule.ListType == "allowed")
+        {
+            var usageKey = ResolveAppUsageKey(matchedRule.TargetKey, sample);
+            var seconds = _store.GetUsageSecondsForToday("app", usageKey);
+            if (seconds < matchedRule.MaxMinutes * 60) return;
+        }
+
+        try
+        {
+            KillProcessById(sample.ProcessId, matchedRule.DisplayName, matchedRule.MaxMinutes);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to block process {ProcessId}", sample.ProcessId);
         }
     }
+
+    private static bool IsBrowserProcess(string processName) =>
+        processName is "chrome" or "msedge" or "firefox" or "brave" or "opera" or "vivaldi" or "arc";
 
     private void SweepBlockedProcessesIfNeeded(IReadOnlyCollection<BlockRuleRecord> rules)
     {
@@ -123,35 +211,31 @@ public class Worker : BackgroundService
         }
 
         _lastProcessSweepAt = DateTime.Now;
+        var appRules = rules.Where(r => r.TargetType == "app").ToList();
 
-        foreach (var rule in rules.Where(rule => rule.IsEnabled && rule.TargetType == "app"))
+        foreach (var process in Process.GetProcesses())
         {
-            var seconds = _store.GetUsageSecondsForTodayForAppRule(rule.TargetKey);
-            if (seconds < rule.MaxMinutes * 60)
+            try
             {
-                continue;
+                if (process.Id <= 0 || process.HasExited) continue;
+                if (ProtectedProcesses.Contains(process.ProcessName)) continue;
+
+                var matchedRule = appRules.FirstOrDefault(r =>
+                    MatchesAppRule(r.TargetKey, process.ProcessName, process.MainWindowTitle));
+
+                if (matchedRule is null) continue;
+
+                if (matchedRule.ListType == "allowed")
+                {
+                    var seconds = _store.GetUsageSecondsForTodayForAppRule(matchedRule.TargetKey);
+                    if (seconds < matchedRule.MaxMinutes * 60) continue;
+                }
+
+                KillProcessById(process.Id, matchedRule.DisplayName, matchedRule.MaxMinutes);
             }
-
-            foreach (var process in Process.GetProcesses())
+            catch (Exception ex)
             {
-                try
-                {
-                    if (process.Id <= 0 || process.HasExited)
-                    {
-                        continue;
-                    }
-
-                    if (!MatchesAppRule(rule.TargetKey, process.ProcessName, process.MainWindowTitle))
-                    {
-                        continue;
-                    }
-
-                    KillProcessById(process.Id, rule.DisplayName, rule.MaxMinutes);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogDebug(ex, "Skipping process sweep candidate {ProcessName}", process.ProcessName);
-                }
+                _logger.LogDebug(ex, "Skipping process sweep candidate {ProcessName}", process.ProcessName);
             }
         }
     }
@@ -192,10 +276,20 @@ public class Worker : BackgroundService
 
     private void KillProcessById(int processId, string displayName, int maxMinutes)
     {
-        Process.GetProcessById(processId).Kill(true);
-        _lastBlockActionAt = DateTime.Now;
-        _logger.LogWarning("Blocked {DisplayName} after {Minutes} minutes", displayName, maxMinutes);
+        if (processId == SelfProcessId) return;
+        try
+        {
+            using var process = Process.GetProcessById(processId);
+            process.Kill();
+            _lastBlockActionAt = DateTime.Now;
+            _logger.LogWarning("Blocked {DisplayName} after {Minutes} minutes (PID: {ProcessId})", displayName, maxMinutes, processId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to kill process {ProcessId}", processId);
+        }
     }
+
 
     private static string ResolveAppUsageKey(string targetKey, ActivitySample sample)
     {

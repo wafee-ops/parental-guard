@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 
 namespace ParentalGuard.Service;
@@ -34,7 +35,7 @@ public sealed class HostsFileBlocker
         builder.AppendLine(StartMarker);
         foreach (var domain in normalizedDomains)
         {
-            builder.Append("127.0.0.1 ");
+            builder.Append("0.0.0.0 ");
             builder.AppendLine(domain);
         }
         builder.AppendLine(EndMarker);
@@ -43,6 +44,28 @@ public sealed class HostsFileBlocker
         if (!string.Equals(existingContent, newContent, StringComparison.Ordinal))
         {
             File.WriteAllText(_hostsPath, newContent);
+            FlushDnsCache();
+        }
+    }
+
+    private static void FlushDnsCache()
+    {
+        try
+        {
+            using var process = new Process();
+            process.StartInfo = new ProcessStartInfo
+            {
+                FileName = "ipconfig",
+                Arguments = "/flushdns",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true
+            };
+            process.Start();
+            process.WaitForExit(5000);
+        }
+        catch
+        {
         }
     }
 

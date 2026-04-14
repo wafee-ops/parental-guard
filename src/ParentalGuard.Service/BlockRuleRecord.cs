@@ -5,4 +5,5 @@ public sealed record BlockRuleRecord(
     string TargetKey,
     string DisplayName,
     bool IsEnabled,
-    int MaxMinutes);
+    int MaxMinutes,
+    string ListType);

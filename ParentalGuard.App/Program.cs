@@ -17,3 +17,7 @@ foreach (var profile in profiles)
     Console.WriteLine(
         $"{profile.Name}: Allowed={decision.IsAllowed}, Remaining={decision.RemainingMinutes} minutes, Reason={decision.Reason}");
 }
+
+Console.WriteLine();
+Console.Write("Press any key to exit...");
+Console.ReadKey();

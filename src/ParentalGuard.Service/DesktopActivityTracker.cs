@@ -159,19 +159,7 @@ public sealed class DesktopActivityTracker
             }
         }
 
-        var scrubbedTitle = windowTitle;
-        foreach (var suffix in BrowserSuffixes)
-        {
-            scrubbedTitle = scrubbedTitle.Replace($" - {suffix}", string.Empty, StringComparison.OrdinalIgnoreCase);
-        }
-
-        scrubbedTitle = scrubbedTitle.Trim();
-        if (scrubbedTitle.Contains(" - "))
-        {
-            scrubbedTitle = scrubbedTitle.Split(" - ", StringSplitOptions.RemoveEmptyEntries)[0].Trim();
-        }
-
-        return scrubbedTitle.Length > 0 ? scrubbedTitle.ToLowerInvariant() : null;
+        return null;
     }
 
     private static string NormalizeDomain(string domain) =>

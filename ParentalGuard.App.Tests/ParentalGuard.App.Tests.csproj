@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ParentalGuard.App\ParentalGuard.App.csproj" />
+    <ProjectReference Include="..\src\ParentalGuard.Service\ParentalGuard.Service.csproj" />
   </ItemGroup>
 
 </Project>
