@@ -57,7 +57,7 @@ dotnet format ParentalGuard.sln --verify-no-changes --verbosity diagnostic
 
 ```
 ParentalGuard.sln
-├── ParentalGuard.App/              Console app (screen-time policy demo)
+├── ParentalGuard.App/              Console app (screen-time policy     demo)
 ├── ParentalGuard.App.Tests/        xUnit test project
 └── src/
     ├── ParentalGuard.Common/       Shared library (config schema, constants — mostly scaffolded)
@@ -144,3 +144,4 @@ ParentalGuard.sln
 - `StringComparison.OrdinalIgnoreCase` for all case-insensitive comparisons
 - `StringComparison.Ordinal` for exact/invariant comparisons
 - Range operator `[^4..]` and `[4..]` used for substring operations instead of `.Substring()`
+

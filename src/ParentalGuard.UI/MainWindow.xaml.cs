@@ -196,6 +196,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         SettingsButtonBrush = Brushes.Transparent;
         UpdatePageCopy();
         AnimatePageIn(OverviewGrid);
+        AnimateIn(GraphCard, 0.04);
     }
 
     private void OnUsageClick(object sender, RoutedEventArgs e)
@@ -208,6 +209,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         SettingsButtonBrush = Brushes.Transparent;
         UpdatePageCopy();
         AnimatePageIn(UsageGrid);
+        AnimateIn(UsageCombinedCard, 0.04);
     }
 
     private void OnSettingsClick(object sender, RoutedEventArgs e)
@@ -251,6 +253,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         SettingsButtonBrush = CreateBrush("#173040");
         UpdatePageCopy();
         AnimatePageIn(SettingsGrid);
+        AnimateIn(SettingsCard, 0.04);
     }
 
     private void OnAddAppClick(object sender, RoutedEventArgs e)
@@ -775,122 +778,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref value, sizeof(int));
         }
         catch { }
-
-        try
-        {
-            var margins = new MARGINS { cxLeftWidth = -1, cxRightWidth = -1, cyTopHeight = -1, cyBottomHeight = -1 };
-            DwmExtendFrameIntoClientArea(hwnd, ref margins);
-        }
-        catch { }
-
-        try
-        {
-            int value = DWMSBT_TRANSIENTWINDOW;
-            var hr = DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, ref value, sizeof(int));
-            if (hr == 0) return;
-        }
-        catch { }
-
-        try
-        {
-            int value = DWMSBT_MAINWINDOW;
-            var hr = DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, ref value, sizeof(int));
-            if (hr == 0) return;
-        }
-        catch { }
-
-        try
-        {
-            var accent = new AccentPolicy
-            {
-                AccentState = AccentState.ACCENT_ENABLE_ACRYLICBLURBEHIND,
-                AccentFlags = 2,
-                GradientColor = unchecked((int)0x66000000)
-            };
-            var data = new WindowCompositionAttributeData
-            {
-                Attribute = WindowCompositionAttribute.WCA_ACCENT_POLICY,
-                SizeOfData = Marshal.SizeOf<AccentPolicy>(),
-                Data = Marshal.AllocHGlobal(Marshal.SizeOf<AccentPolicy>())
-            };
-            Marshal.StructureToPtr(accent, data.Data, false);
-            SetWindowCompositionAttribute(hwnd, ref data);
-            Marshal.FreeHGlobal(data.Data);
-        }
-        catch { }
-
-        try
-        {
-            var accent = new AccentPolicy
-            {
-                AccentState = AccentState.ACCENT_ENABLE_BLURBEHIND,
-                AccentFlags = 2,
-                GradientColor = unchecked((int)0x66000000)
-            };
-            var data = new WindowCompositionAttributeData
-            {
-                Attribute = WindowCompositionAttribute.WCA_ACCENT_POLICY,
-                SizeOfData = Marshal.SizeOf<AccentPolicy>(),
-                Data = Marshal.AllocHGlobal(Marshal.SizeOf<AccentPolicy>())
-            };
-            Marshal.StructureToPtr(accent, data.Data, false);
-            SetWindowCompositionAttribute(hwnd, ref data);
-            Marshal.FreeHGlobal(data.Data);
-        }
-        catch { }
     }
 
     private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
-    private const int DWMWA_SYSTEMBACKDROP_TYPE = 38;
-    private const int DWMSBT_MAINWINDOW = 2;
-    private const int DWMSBT_TRANSIENTWINDOW = 3;
 
     [DllImport("dwmapi.dll", PreserveSig = true)]
     private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
-
-    [DllImport("dwmapi.dll", PreserveSig = true)]
-    private static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref MARGINS margins);
-
-    [DllImport("user32.dll")]
-    private static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct MARGINS
-    {
-        public int cxLeftWidth;
-        public int cxRightWidth;
-        public int cyTopHeight;
-        public int cyBottomHeight;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct WindowCompositionAttributeData
-    {
-        public WindowCompositionAttribute Attribute;
-        public IntPtr Data;
-        public int SizeOfData;
-    }
-
-    private enum WindowCompositionAttribute
-    {
-        WCA_ACCENT_POLICY = 19
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct AccentPolicy
-    {
-        public AccentState AccentState;
-        public int AccentFlags;
-        public int GradientColor;
-        public int AnimationId;
-    }
-
-    private enum AccentState
-    {
-        ACCENT_DISABLED = 0,
-        ACCENT_ENABLE_GRADIENT = 1,
-        ACCENT_ENABLE_TRANSPARENTGRADIENT = 2,
-        ACCENT_ENABLE_BLURBEHIND = 3,
-        ACCENT_ENABLE_ACRYLICBLURBEHIND = 4
-    }
 }
