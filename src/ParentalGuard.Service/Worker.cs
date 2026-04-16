@@ -36,7 +36,7 @@ public class Worker : BackgroundService
     {
         _logger = logger;
         var appDataPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
             "ParentalGuard",
             "usage.db");
         _store = new ActivityStore(appDataPath);

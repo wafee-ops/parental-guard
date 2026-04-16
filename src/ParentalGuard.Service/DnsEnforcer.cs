@@ -15,6 +15,12 @@ public sealed class DnsEnforcer
 
     public async Task<DnsEnforcementResult> EnforceAsync()
     {
+        if (!WindowsPrivilegeChecker.IsRunningElevated())
+        {
+            _logger.LogError("DNS enforcement requires administrator privileges. Run the process elevated or install it as a Windows Service.");
+            return new DnsEnforcementResult(0, 0, false);
+        }
+
         var adapters = GetActiveAdapterNames();
         if (adapters.Count == 0)
         {
@@ -63,6 +69,12 @@ public sealed class DnsEnforcer
     public List<string> GetActiveAdapterNames()
     {
         var adapters = new List<string>();
+        if (!WindowsPrivilegeChecker.IsRunningElevated())
+        {
+            _logger.LogWarning("Skipping adapter enumeration because the process is not running with administrator privileges");
+            return adapters;
+        }
+
         try
         {
             var output = RunNetshSync("interface show interface");
@@ -100,6 +112,12 @@ public sealed class DnsEnforcer
 
     public async Task<bool> ResetDnsForAdapterAsync(string adapterName)
     {
+        if (!WindowsPrivilegeChecker.IsRunningElevated())
+        {
+            _logger.LogWarning("Cannot reset DNS for adapter {Adapter} without administrator privileges", adapterName);
+            return false;
+        }
+
         return await RunNetshAsync($"interface ip set dns \"{adapterName}\" dhcp");
     }
 

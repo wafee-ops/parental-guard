@@ -17,6 +17,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 {
     private const double GraphWidth = 760;
     private const double GraphHeight = 180;
+    private const double UsageChartMaxHeight = 148;
 
     private readonly DispatcherTimer _timer;
     private readonly ActivityStore _activityStore;
@@ -27,6 +28,13 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private string _todayTotalText = "0m";
     private string _yesterdayTotalText = "0m";
     private string _lastWeekTotalText = "0m";
+    private string _selectedUsagePeriod = "Today";
+    private string _selectedUsageCategory = "All Categories";
+    private string _usageTotalText = "0m";
+    private string _usagePeriodTitle = "Today";
+    private string _usageSummaryText = "Apps and sites compared with total screen time.";
+    private string _usagePeakHourText = "No hourly data yet";
+    private string _usageChartHintText = "Hourly bars will appear as activity is recorded.";
     private string _pageTitle = string.Empty;
     private Geometry _usageLineGeometry = Geometry.Empty;
     private string _blockPopupMessage = string.Empty;
@@ -34,7 +42,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private Visibility _usageVisibility = Visibility.Collapsed;
     private Visibility _settingsVisibility = Visibility.Collapsed;
     private Visibility _blockPopupVisibility = Visibility.Collapsed;
-    private Brush _overviewButtonBrush = CreateBrush("#173040");
+    private Brush _overviewButtonBrush = CreateBrush("#2F4C64");
     private Brush _usageButtonBrush = Brushes.Transparent;
     private Brush _settingsButtonBrush = Brushes.Transparent;
     private bool _isRefreshingSettings;
@@ -42,7 +50,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     public MainWindow()
     {
         var appDataPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
             "ParentalGuard",
             "usage.db");
         _activityStore = new ActivityStore(appDataPath);
@@ -52,6 +60,9 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
         AllUsage = [];
         DailyUsageGraph = [];
+        HourlyUsageBars = [];
+        UsagePeriodOptions = ["Today", "Yesterday", "Last week", "Last month"];
+        UsageCategoryOptions = ["All Categories", "Gaming", "Social Media", "Productivity", "Entertainment", "Browsing", "Utilities", "Learning", "General"];
         BlockRules = new ObservableCollection<BlockRule>(_activityStore.LoadBlockRules());
         AllowedRules = [];
         BlockedRules = [];
@@ -74,6 +85,12 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     public ObservableCollection<LineGraphPoint> DailyUsageGraph { get; }
 
+    public ObservableCollection<HourlyUsageBar> HourlyUsageBars { get; }
+
+    public ObservableCollection<string> UsagePeriodOptions { get; }
+
+    public ObservableCollection<string> UsageCategoryOptions { get; }
+
     public ObservableCollection<BlockRule> BlockRules { get; }
 
     public ObservableCollection<BlockRule> AllowedRules { get; }
@@ -90,6 +107,36 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     {
         get => _pageTitle;
         private set => SetField(ref _pageTitle, value);
+    }
+
+    public string SelectedUsagePeriod
+    {
+        get => _selectedUsagePeriod;
+        set
+        {
+            if (_selectedUsagePeriod == value)
+            {
+                return;
+            }
+
+            SetField(ref _selectedUsagePeriod, value);
+            RefreshUsageDashboard();
+        }
+    }
+
+    public string SelectedUsageCategory
+    {
+        get => _selectedUsageCategory;
+        set
+        {
+            if (_selectedUsageCategory == value)
+            {
+                return;
+            }
+
+            SetField(ref _selectedUsageCategory, value);
+            RefreshUsageDashboard();
+        }
     }
 
     public Geometry UsageLineGeometry
@@ -138,6 +185,36 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     {
         get => _lastWeekTotalText;
         private set => SetField(ref _lastWeekTotalText, value);
+    }
+
+    public string UsageTotalText
+    {
+        get => _usageTotalText;
+        private set => SetField(ref _usageTotalText, value);
+    }
+
+    public string UsagePeriodTitle
+    {
+        get => _usagePeriodTitle;
+        private set => SetField(ref _usagePeriodTitle, value);
+    }
+
+    public string UsageSummaryText
+    {
+        get => _usageSummaryText;
+        private set => SetField(ref _usageSummaryText, value);
+    }
+
+    public string UsagePeakHourText
+    {
+        get => _usagePeakHourText;
+        private set => SetField(ref _usagePeakHourText, value);
+    }
+
+    public string UsageChartHintText
+    {
+        get => _usageChartHintText;
+        private set => SetField(ref _usageChartHintText, value);
     }
 
     public Visibility BlockPopupVisibility
@@ -191,7 +268,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         OverviewVisibility = Visibility.Visible;
         UsageVisibility = Visibility.Collapsed;
         SettingsVisibility = Visibility.Collapsed;
-        OverviewButtonBrush = CreateBrush("#173040");
+        OverviewButtonBrush = CreateBrush("#2F4C64");
         UsageButtonBrush = Brushes.Transparent;
         SettingsButtonBrush = Brushes.Transparent;
         UpdatePageCopy();
@@ -205,7 +282,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         UsageVisibility = Visibility.Visible;
         SettingsVisibility = Visibility.Collapsed;
         OverviewButtonBrush = Brushes.Transparent;
-        UsageButtonBrush = CreateBrush("#173040");
+        UsageButtonBrush = CreateBrush("#2F4C64");
         SettingsButtonBrush = Brushes.Transparent;
         UpdatePageCopy();
         AnimatePageIn(UsageGrid);
@@ -250,7 +327,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         SettingsVisibility = Visibility.Visible;
         OverviewButtonBrush = Brushes.Transparent;
         UsageButtonBrush = Brushes.Transparent;
-        SettingsButtonBrush = CreateBrush("#173040");
+        SettingsButtonBrush = CreateBrush("#2F4C64");
         UpdatePageCopy();
         AnimatePageIn(SettingsGrid);
         AnimateIn(SettingsCard, 0.04);
@@ -399,6 +476,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private void OnWindowLoaded(object sender, RoutedEventArgs e)
     {
         EnableBlur(this);
+        AnimateAmbientBackground();
         AnimateIn(HeaderCard, 0.12);
         AnimateIn(GraphCard, 0.2);
         AnimateIn(UsageCombinedCard, 0.2);
@@ -420,9 +498,9 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private void RefreshVisibleData()
     {
-        ReplaceCollection(AllUsage, _activityStore.LoadCombinedUsageForDate(DateTime.Today));
         RefreshBlockRules();
         RefreshOverviewTotals();
+        RefreshUsageDashboard();
 
         var points = _activityStore.LoadDailyLinePoints(7, GraphWidth, GraphHeight);
         ReplaceCollection(DailyUsageGraph, points);
@@ -439,6 +517,52 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         TodayTotalText = FormatDuration(totalSeconds: todaySeconds);
         YesterdayTotalText = FormatDuration(totalSeconds: yesterdaySeconds);
         LastWeekTotalText = FormatDuration(totalSeconds: weekSeconds);
+    }
+
+    private void RefreshUsageDashboard()
+    {
+        var (startDate, endDate, title) = ResolveUsageRange(SelectedUsagePeriod);
+        var totalSeconds = _activityStore.GetTotalUsageSecondsInRange(startDate, endDate, SelectedUsageCategory);
+        var usageEntries = _activityStore.LoadCombinedUsageForRange(startDate, endDate, SelectedUsageCategory);
+
+        foreach (var entry in usageEntries)
+        {
+            entry.ShareOfTotal = totalSeconds <= 0 ? 0 : entry.Seconds / (double)totalSeconds;
+        }
+
+        var hourlyBars = _activityStore.LoadHourlyUsageBars(startDate, endDate, SelectedUsageCategory, UsageChartMaxHeight);
+        var peakHour = hourlyBars.OrderByDescending(item => item.Seconds).FirstOrDefault();
+
+        UsagePeriodTitle = title;
+        UsageTotalText = FormatDuration(totalSeconds);
+        UsageSummaryText = BuildUsageSummaryText(title, SelectedUsageCategory, usageEntries.Count);
+        UsagePeakHourText = peakHour is null || peakHour.Seconds == 0
+            ? "No hourly detail yet"
+            : $"Peak hour: {peakHour.AccessibilityLabel}";
+        UsageChartHintText = totalSeconds == 0
+            ? "No activity recorded for this selection."
+            : hourlyBars.All(item => item.Seconds == 0)
+                ? "Hourly breakdown will populate as fresh activity is recorded."
+                : "Bars show how usage stacks up across each hour of the day.";
+
+        ReplaceCollection(AllUsage, usageEntries);
+        ReplaceCollection(HourlyUsageBars, hourlyBars);
+    }
+
+    private static (DateTime StartDate, DateTime EndDate, string Title) ResolveUsageRange(string period) =>
+        period switch
+        {
+            "Yesterday" => (DateTime.Today.AddDays(-1), DateTime.Today.AddDays(-1), "Yesterday"),
+            "Last week" => (DateTime.Today.AddDays(-6), DateTime.Today, "Last 7 days"),
+            "Last month" => (DateTime.Today.AddDays(-29), DateTime.Today, "Last 30 days"),
+            _ => (DateTime.Today, DateTime.Today, "Today")
+        };
+
+    private static string BuildUsageSummaryText(string periodTitle, string category, int itemCount)
+    {
+        var categoryText = category == "All Categories" ? "all categories" : category;
+        var itemLabel = itemCount == 1 ? "item" : "items";
+        return $"{periodTitle} across {categoryText.ToLowerInvariant()} · {itemCount} {itemLabel} ranked by total share.";
     }
 
     private void RefreshBlockRules()
@@ -549,14 +673,20 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private static void AnimateIn(FrameworkElement element, double beginSeconds)
     {
-        var storyboard = new Storyboard();
+        var scaleTransform = new ScaleTransform(0.98, 0.98);
+        var translateTransform = new TranslateTransform(0, 28);
+        var transformGroup = new TransformGroup();
+        transformGroup.Children.Add(scaleTransform);
+        transformGroup.Children.Add(translateTransform);
+        element.RenderTransform = transformGroup;
 
         var fade = new DoubleAnimation
         {
             From = 0,
             To = 1,
             BeginTime = TimeSpan.FromSeconds(beginSeconds),
-            Duration = TimeSpan.FromMilliseconds(480)
+            Duration = TimeSpan.FromMilliseconds(520),
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
         };
 
         var slide = new DoubleAnimation
@@ -564,18 +694,23 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             From = 28,
             To = 0,
             BeginTime = TimeSpan.FromSeconds(beginSeconds),
-            Duration = TimeSpan.FromMilliseconds(560),
-            EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut, Amplitude = 0.3 }
+            Duration = TimeSpan.FromMilliseconds(680),
+            EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut, Amplitude = 0.22 }
         };
 
-        Storyboard.SetTarget(fade, element);
-        Storyboard.SetTargetProperty(fade, new PropertyPath(OpacityProperty));
-        Storyboard.SetTarget(slide, element);
-        Storyboard.SetTargetProperty(slide, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.Y)"));
+        var scale = new DoubleAnimation
+        {
+            From = 0.98,
+            To = 1,
+            BeginTime = TimeSpan.FromSeconds(beginSeconds),
+            Duration = TimeSpan.FromMilliseconds(680),
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+        };
 
-        storyboard.Children.Add(fade);
-        storyboard.Children.Add(slide);
-        storyboard.Begin();
+        element.BeginAnimation(OpacityProperty, fade);
+        translateTransform.BeginAnimation(TranslateTransform.YProperty, slide);
+        scaleTransform.BeginAnimation(ScaleTransform.ScaleXProperty, scale);
+        scaleTransform.BeginAnimation(ScaleTransform.ScaleYProperty, scale.Clone());
     }
 
     private void AnimateTopBar()
@@ -678,19 +813,29 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private static void AnimatePageIn(FrameworkElement element)
     {
         element.Opacity = 0;
-        var transform = new TranslateTransform(24, 0);
+        var transform = new TransformGroup();
+        var scaleTransform = new ScaleTransform(0.985, 0.985);
+        var translateTransform = new TranslateTransform(30, 0);
+        transform.Children.Add(scaleTransform);
+        transform.Children.Add(translateTransform);
         element.RenderTransform = transform;
 
         var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(380))
         {
             EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
         };
-        var slideIn = new DoubleAnimation(24, 0, TimeSpan.FromMilliseconds(450))
+        var slideIn = new DoubleAnimation(30, 0, TimeSpan.FromMilliseconds(520))
         {
-            EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut, Amplitude = 0.15 }
+            EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut, Amplitude = 0.14 }
+        };
+        var scaleIn = new DoubleAnimation(0.985, 1, TimeSpan.FromMilliseconds(520))
+        {
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
         };
         element.BeginAnimation(OpacityProperty, fadeIn);
-        transform.BeginAnimation(TranslateTransform.XProperty, slideIn);
+        translateTransform.BeginAnimation(TranslateTransform.XProperty, slideIn);
+        scaleTransform.BeginAnimation(ScaleTransform.ScaleXProperty, scaleIn);
+        scaleTransform.BeginAnimation(ScaleTransform.ScaleYProperty, scaleIn);
     }
 
     private static void AnimateOverlayIn(Grid overlay)
@@ -713,6 +858,44 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
         };
         overlay.BeginAnimation(OpacityProperty, fadeIn);
+    }
+
+    private void AnimateAmbientBackground()
+    {
+        AnimateOrb(AmbientOrbOne, 0, 12, -10, 8200);
+        AnimateOrb(AmbientOrbTwo, 1200, -16, 14, 9800);
+        AnimateOrb(AmbientOrbThree, 2400, -10, -12, 11200);
+    }
+
+    private static void AnimateOrb(FrameworkElement element, int beginMs, double xOffset, double yOffset, int durationMs)
+    {
+        element.RenderTransform = new TranslateTransform();
+
+        var xAnimation = new DoubleAnimation(0, xOffset, TimeSpan.FromMilliseconds(durationMs))
+        {
+            BeginTime = TimeSpan.FromMilliseconds(beginMs),
+            AutoReverse = true,
+            RepeatBehavior = RepeatBehavior.Forever,
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
+        };
+        var yAnimation = new DoubleAnimation(0, yOffset, TimeSpan.FromMilliseconds(durationMs + 1400))
+        {
+            BeginTime = TimeSpan.FromMilliseconds(beginMs),
+            AutoReverse = true,
+            RepeatBehavior = RepeatBehavior.Forever,
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
+        };
+        var opacityAnimation = new DoubleAnimation(element.Opacity, Math.Min(0.42, element.Opacity + 0.06), TimeSpan.FromMilliseconds(durationMs))
+        {
+            BeginTime = TimeSpan.FromMilliseconds(beginMs),
+            AutoReverse = true,
+            RepeatBehavior = RepeatBehavior.Forever,
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
+        };
+
+        ((TranslateTransform)element.RenderTransform).BeginAnimation(TranslateTransform.XProperty, xAnimation);
+        ((TranslateTransform)element.RenderTransform).BeginAnimation(TranslateTransform.YProperty, yAnimation);
+        element.BeginAnimation(OpacityProperty, opacityAnimation);
     }
 
     private static T? FindVisualChild<T>(DependencyObject parent) where T : DependencyObject

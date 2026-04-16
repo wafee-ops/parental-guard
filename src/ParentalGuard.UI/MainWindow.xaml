@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:WindowChrome="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         xmlns:local="clr-namespace:ParentalGuard.UI"
         mc:Ignorable="d"
         Title="ParentalGuard"
@@ -10,7 +11,7 @@
         Height="840"
         MinWidth="1020"
         MinHeight="720"
-        Background="#FF0A1118"
+        Background="Transparent"
         FontFamily="{StaticResource Nunito}"
         Loaded="OnWindowLoaded"
         StateChanged="OnWindowStateChanged"
@@ -23,17 +24,35 @@
                       CornerRadius="0" />
     </WindowChrome.WindowChrome>
     <Window.Resources>
-        <SolidColorBrush x:Key="PageBrush" Color="#550A1118" />
-        <SolidColorBrush x:Key="SidebarBrush" Color="#660E1822" />
-        <SolidColorBrush x:Key="CardBrush" Color="#55111C27" />
-        <SolidColorBrush x:Key="BorderBrushStrong" Color="#213547" />
-        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F5F7FA" />
-        <SolidColorBrush x:Key="TextSecondaryBrush" Color="#9CB0C4" />
-        <SolidColorBrush x:Key="AccentBrush" Color="#3FD0AE" />
-        <SolidColorBrush x:Key="AccentBlueBrush" Color="#6BB8FF" />
-        <SolidColorBrush x:Key="AccentCoralBrush" Color="#FF7D66" />
+        <LinearGradientBrush x:Key="WindowBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FF051018" Offset="0" />
+            <GradientStop Color="#FF0A1824" Offset="0.42" />
+            <GradientStop Color="#FF132333" Offset="1" />
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="PageBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#C40A1420" Offset="0" />
+            <GradientStop Color="#B20D1A27" Offset="0.5" />
+            <GradientStop Color="#B0142433" Offset="1" />
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="SidebarBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#9A0E1A26" Offset="0" />
+            <GradientStop Color="#86111E2B" Offset="1" />
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="CardBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#AA162433" Offset="0" />
+            <GradientStop Color="#7E112030" Offset="0.56" />
+            <GradientStop Color="#80101B28" Offset="1" />
+        </LinearGradientBrush>
+        <SolidColorBrush x:Key="BorderBrushStrong" Color="#2B4A61" />
+        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F4FAFF" />
+        <SolidColorBrush x:Key="TextSecondaryBrush" Color="#9DB4C8" />
+        <SolidColorBrush x:Key="AccentBrush" Color="#71E4C3" />
+        <SolidColorBrush x:Key="AccentBlueBrush" Color="#84C8FF" />
+        <SolidColorBrush x:Key="AccentCoralBrush" Color="#FF8A72" />
+        <SolidColorBrush x:Key="AccentGoldBrush" Color="#FFD58A" />
 
-        <DropShadowEffect x:Key="CardShadow" BlurRadius="24" ShadowDepth="0" Opacity="0.2" Color="#000000" />
+        <DropShadowEffect x:Key="CardShadow" BlurRadius="42" ShadowDepth="10" Opacity="0.24" Color="#02060B" />
+        <DropShadowEffect x:Key="ButtonGlowShadow" BlurRadius="18" ShadowDepth="0" Opacity="0.28" Color="#71E4C3" />
         <CubicEase x:Key="EaseOutCubic" EasingMode="EaseOut" />
         <QuadraticEase x:Key="EaseOutQuad" EasingMode="EaseOut" />
         <BackEase x:Key="EaseOutBack" EasingMode="EaseOut" Amplitude="0.5" />
@@ -52,19 +71,48 @@
             <GradientStop Color="#1AFFFFFF" Offset="0" />
             <GradientStop Color="#00FFFFFF" Offset="1" />
         </LinearGradientBrush>
+        <LinearGradientBrush x:Key="NavButtonBaseBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#1C2733" Offset="0" />
+            <GradientStop Color="#121B25" Offset="1" />
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="TitleButtonBaseBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#1A2330" Offset="0" />
+            <GradientStop Color="#111A24" Offset="1" />
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="TitleButtonHoverBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#243141" Offset="0" />
+            <GradientStop Color="#16202B" Offset="1" />
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="TitleCloseHoverBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#5C302D" Offset="0" />
+            <GradientStop Color="#442321" Offset="1" />
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="PrimaryButtonBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FF7DFFC4" Offset="0" />
+            <GradientStop Color="#FF49D7C1" Offset="0.5" />
+            <GradientStop Color="#FF4FA8FF" Offset="1" />
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="DangerButtonBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FFFFB199" Offset="0" />
+            <GradientStop Color="#FFFF8A72" Offset="0.55" />
+            <GradientStop Color="#FFFF6F90" Offset="1" />
+        </LinearGradientBrush>
 
         <Style x:Key="CardStyle" TargetType="Border">
             <Setter Property="Background" Value="{StaticResource CardBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushStrong}" />
+            <Setter Property="BorderBrush" Value="#44A8C8DB" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="22" />
-            <Setter Property="Padding" Value="22" />
+            <Setter Property="CornerRadius" Value="28" />
+            <Setter Property="Padding" Value="24" />
             <Setter Property="Effect" Value="{StaticResource CardShadow}" />
             <Setter Property="Opacity" Value="0" />
             <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
             <Setter Property="RenderTransform">
                 <Setter.Value>
-                    <TranslateTransform Y="28" />
+                    <TransformGroup>
+                        <ScaleTransform ScaleX="0.98" ScaleY="0.98" />
+                        <TranslateTransform Y="28" />
+                    </TransformGroup>
                 </Setter.Value>
             </Setter>
         </Style>
@@ -129,8 +177,8 @@
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="HorizontalContentAlignment" Value="Left" />
-            <Setter Property="Padding" Value="16,12" />
-            <Setter Property="FontSize" Value="16" />
+            <Setter Property="Padding" Value="18,14" />
+            <Setter Property="FontSize" Value="15" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
@@ -143,25 +191,45 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Grid>
-                            <Border x:Name="NavButtonChrome" Background="{TemplateBinding Background}" CornerRadius="14" />
-                            <Border x:Name="GlassBorder" CornerRadius="14"
-                                    BorderBrush="#1AFFFFFF" BorderThickness="1"
+                            <Border x:Name="NavButtonBase"
+                                    Background="{StaticResource NavButtonBaseBrush}"
+                                    BorderBrush="#1EFFFFFF"
+                                    BorderThickness="1"
+                                    CornerRadius="18" />
+                            <Border x:Name="NavButtonChrome"
+                                    Margin="1"
+                                    Background="{TemplateBinding Background}"
+                                    CornerRadius="17" />
+                            <Border x:Name="GlassBorder"
+                                    Margin="1"
+                                    CornerRadius="17"
+                                    BorderBrush="#18FFFFFF" BorderThickness="1"
                                     Background="{StaticResource GlassOverlayBrush}" />
-                             <Rectangle x:Name="Shine" RadiusX="12" RadiusY="12"
-                                        VerticalAlignment="Top" Height="16" Margin="1"
+                            <Rectangle x:Name="SelectionGlow"
+                                       Width="56"
+                                       HorizontalAlignment="Left"
+                                       Fill="#00FFFFFF"
+                                       RadiusX="18"
+                                       RadiusY="18" />
+                             <Rectangle x:Name="Shine" RadiusX="16" RadiusY="16"
+                                        VerticalAlignment="Top" Height="18" Margin="2,2,2,0"
+                                        Opacity="0.85"
                                         Fill="{StaticResource GlassHighlightBrush}" />
                              <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" />
                          </Grid>
                          <ControlTemplate.Triggers>
                              <Trigger Property="IsMouseOver" Value="True">
-                                 <Setter TargetName="NavButtonChrome" Property="Background" Value="#153244" />
-                                <Setter TargetName="GlassBorder" Property="BorderBrush" Value="#30FFFFFF" />
+                                 <Setter TargetName="NavButtonBase" Property="BorderBrush" Value="#34FFFFFF" />
+                                 <Setter TargetName="NavButtonChrome" Property="Background" Value="#20394C" />
+                                <Setter TargetName="GlassBorder" Property="BorderBrush" Value="#2AFFFFFF" />
                                 <Setter TargetName="GlassBorder" Property="Background" Value="{StaticResource GlassOverlayStrongBrush}" />
+                                <Setter TargetName="SelectionGlow" Property="Fill" Value="#0CA2D8FF" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="NavButtonChrome" Property="Background" Value="#1E4157" />
+                                <Setter TargetName="NavButtonChrome" Property="Background" Value="#1A2E3F" />
                                 <Setter TargetName="GlassBorder" Property="BorderBrush" Value="#18FFFFFF" />
                                 <Setter TargetName="GlassBorder" Property="Background" Value="{StaticResource GlassOverlayBrush}" />
+                                <Setter TargetName="SelectionGlow" Property="Fill" Value="#08FFFFFF" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -172,12 +240,12 @@
                     <BeginStoryboard>
                         <Storyboard>
                             <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                             To="1.03"
-                                             Duration="0:0:0.18"
+                                             To="1.015"
+                                             Duration="0:0:0.16"
                                              EasingFunction="{StaticResource EaseOutCubic}" />
                             <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-                                             To="1.03"
-                                             Duration="0:0:0.18"
+                                             To="1.015"
+                                             Duration="0:0:0.16"
                                              EasingFunction="{StaticResource EaseOutCubic}" />
                         </Storyboard>
                     </BeginStoryboard>
@@ -187,11 +255,11 @@
                         <Storyboard>
                             <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
                                              To="1"
-                                             Duration="0:0:0.18"
+                                             Duration="0:0:0.16"
                                              EasingFunction="{StaticResource EaseOutQuad}" />
                             <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
                                              To="1"
-                                             Duration="0:0:0.18"
+                                             Duration="0:0:0.16"
                                              EasingFunction="{StaticResource EaseOutQuad}" />
                         </Storyboard>
                     </BeginStoryboard>
@@ -200,13 +268,14 @@
         </Style>
 
         <Style x:Key="RoundedActionButtonStyle" TargetType="Button">
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="Background" Value="{StaticResource AccentCoralBrush}" />
+            <Setter Property="Foreground" Value="#061118" />
+            <Setter Property="Background" Value="{StaticResource PrimaryButtonBrush}" />
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Padding" Value="14,10" />
+            <Setter Property="Padding" Value="18,12" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Effect" Value="{StaticResource ButtonGlowShadow}" />
             <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
             <Setter Property="RenderTransform">
                 <Setter.Value>
@@ -217,31 +286,30 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Grid>
-                            <Border x:Name="ActionButtonChrome" Background="{TemplateBinding Background}" CornerRadius="14" />
-                            <Border x:Name="GlassBorder" CornerRadius="14"
-                                    BorderBrush="#2AFFFFFF" BorderThickness="1"
-                                    Background="{StaticResource GlassOverlayStrongBrush}" />
-                             <Rectangle x:Name="Shine" RadiusX="12" RadiusY="12"
-                                        VerticalAlignment="Top" Height="16" Margin="1"
+                            <Border x:Name="ActionButtonChrome" Background="{TemplateBinding Background}" CornerRadius="18" />
+                            <Border x:Name="GlassBorder" CornerRadius="18"
+                                    BorderBrush="#50FFFFFF" BorderThickness="1"
+                                    Background="#22FFFFFF" />
+                             <Rectangle x:Name="Shine" RadiusX="16" RadiusY="16"
+                                        VerticalAlignment="Top" Height="18" Margin="1"
                                         Fill="{StaticResource GlassHighlightBrush}" />
                              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}" />
                          </Grid>
                          <ControlTemplate.Triggers>
                              <Trigger Property="IsMouseOver" Value="True">
-                                 <Setter TargetName="ActionButtonChrome" Property="Background" Value="#FF8C77" />
-                                <Setter TargetName="GlassBorder" Property="BorderBrush" Value="#3CFFFFFF" />
+                                <Setter TargetName="GlassBorder" Property="BorderBrush" Value="#7AFFFFFF" />
                                 <Setter TargetName="GlassBorder" Property="Background">
                                     <Setter.Value>
                                         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                            <GradientStop Color="#32FFFFFF" Offset="0" />
-                                            <GradientStop Color="#12FFFFFF" Offset="1" />
+                                            <GradientStop Color="#4DFFFFFF" Offset="0" />
+                                            <GradientStop Color="#18FFFFFF" Offset="1" />
                                         </LinearGradientBrush>
                                     </Setter.Value>
                                 </Setter>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ActionButtonChrome" Property="Background" Value="#FF6B54" />
-                                <Setter TargetName="GlassBorder" Property="BorderBrush" Value="#20FFFFFF" />
+                                <Setter TargetName="GlassBorder" Property="BorderBrush" Value="#32FFFFFF" />
+                                <Setter TargetName="GlassBorder" Property="Background" Value="#10FFFFFF" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -387,6 +455,7 @@
         </Style>
         <Style x:Key="GlassSmallButtonStyle" TargetType="Button">
             <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
             <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
             <Setter Property="RenderTransform">
                 <Setter.Value>
@@ -396,24 +465,24 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Chrome" CornerRadius="8"
-                                BorderBrush="#18FFFFFF" BorderThickness="1"
-                                Background="#14FFFFFF">
+                        <Border x:Name="Chrome" CornerRadius="12"
+                                BorderBrush="#26FFFFFF" BorderThickness="1"
+                                Background="#18FFFFFF">
                             <Grid>
-                                <Rectangle x:Name="Shine" RadiusX="7" RadiusY="7"
-                                           VerticalAlignment="Top" Height="12" Margin="1"
+                                <Rectangle x:Name="Shine" RadiusX="10" RadiusY="10"
+                                           VerticalAlignment="Top" Height="14" Margin="1"
                                            Fill="{StaticResource GlassHighlightBrush}" />
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="#24FFFFFF" />
-                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#30FFFFFF" />
+                                <Setter TargetName="Chrome" Property="Background" Value="#28FFFFFF" />
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#40FFFFFF" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="#10FFFFFF" />
-                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#14FFFFFF" />
+                                <Setter TargetName="Chrome" Property="Background" Value="#12FFFFFF" />
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#1AFFFFFF" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -459,24 +528,24 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Chrome" CornerRadius="6"
-                                BorderBrush="#0CFFFFFF" BorderThickness="1"
-                                Background="#0AFFFFFF">
-                            <Grid>
-                                <Rectangle x:Name="Shine" RadiusX="5" RadiusY="5"
-                                           VerticalAlignment="Top" Height="12" Margin="1"
-                                           Fill="{StaticResource GlassHighlightBrush}" />
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,1" />
-                            </Grid>
-                        </Border>
+                        <Grid>
+                            <Border x:Name="Chrome" CornerRadius="10"
+                                    BorderBrush="#1EFFFFFF" BorderThickness="1"
+                                    Background="{StaticResource TitleButtonBaseBrush}" />
+                            <Rectangle x:Name="Shine" RadiusX="9" RadiusY="9"
+                                       VerticalAlignment="Top" Height="10" Margin="1,1,1,0"
+                                       Opacity="0.75"
+                                       Fill="{StaticResource GlassHighlightBrush}" />
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,1" />
+                        </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="#1CFFFFFF" />
-                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#28FFFFFF" />
+                                <Setter TargetName="Chrome" Property="Background" Value="{StaticResource TitleButtonHoverBrush}" />
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#30FFFFFF" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="#10FFFFFF" />
-                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#14FFFFFF" />
+                                <Setter TargetName="Chrome" Property="Background" Value="#101923" />
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#18FFFFFF" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -487,10 +556,10 @@
                     <BeginStoryboard>
                         <Storyboard>
                             <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                             To="1.12" Duration="0:0:0.22"
+                                             To="1.04" Duration="0:0:0.18"
                                              EasingFunction="{StaticResource EaseOutCubic}" />
                             <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-                                             To="1.12" Duration="0:0:0.22"
+                                             To="1.04" Duration="0:0:0.18"
                                              EasingFunction="{StaticResource EaseOutCubic}" />
                         </Storyboard>
                     </BeginStoryboard>
@@ -499,11 +568,11 @@
                     <BeginStoryboard>
                         <Storyboard>
                             <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                             To="1" Duration="0:0:0.3"
-                                             EasingFunction="{StaticResource EaseOutBack}" />
+                                             To="1" Duration="0:0:0.18"
+                                             EasingFunction="{StaticResource EaseOutQuad}" />
                             <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-                                             To="1" Duration="0:0:0.3"
-                                             EasingFunction="{StaticResource EaseOutBack}" />
+                                             To="1" Duration="0:0:0.18"
+                                             EasingFunction="{StaticResource EaseOutQuad}" />
                         </Storyboard>
                     </BeginStoryboard>
                 </EventTrigger>
@@ -523,23 +592,27 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Grid>
-                            <Border x:Name="Chrome" CornerRadius="6"
-                                    BorderBrush="#0CFFFFFF" BorderThickness="1"
-                                    Background="#0AFFFFFF" />
-                            <Border x:Name="HoverBg" CornerRadius="6"
+                            <Border x:Name="Chrome" CornerRadius="10"
+                                    BorderBrush="#26B76A66" BorderThickness="1"
+                                    Background="{StaticResource TitleButtonBaseBrush}" />
+                            <Border x:Name="HoverBg" CornerRadius="10"
                                     Background="#00FF7D66" />
-                            <Border x:Name="GlowBorder" CornerRadius="6"
-                                    BorderBrush="#00FF7D66" BorderThickness="1" />
+                            <Rectangle x:Name="Shine" RadiusX="9" RadiusY="9"
+                                       VerticalAlignment="Top" Height="10" Margin="1,1,1,0"
+                                       Opacity="0.75"
+                                       Fill="{StaticResource GlassHighlightBrush}" />
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,1" />
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="HoverBg" Property="Background" Value="#1AFF7D66" />
-                                <Setter TargetName="GlowBorder" Property="BorderBrush" Value="#30FF7D66" />
+                                <Setter TargetName="Chrome" Property="Background" Value="{StaticResource TitleCloseHoverBrush}" />
+                                <Setter TargetName="HoverBg" Property="Background" Value="#12FF8E84" />
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#46FF8E84" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="HoverBg" Property="Background" Value="#28FF7D66" />
-                                <Setter TargetName="GlowBorder" Property="BorderBrush" Value="#18FF7D66" />
+                                <Setter TargetName="Chrome" Property="Background" Value="#391E1D" />
+                                <Setter TargetName="HoverBg" Property="Background" Value="#20FF8E84" />
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#26FF8E84" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -550,10 +623,10 @@
                     <BeginStoryboard>
                         <Storyboard>
                             <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                             To="1.14" Duration="0:0:0.22"
+                                             To="1.04" Duration="0:0:0.18"
                                              EasingFunction="{StaticResource EaseOutCubic}" />
                             <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-                                             To="1.14" Duration="0:0:0.22"
+                                             To="1.04" Duration="0:0:0.18"
                                              EasingFunction="{StaticResource EaseOutCubic}" />
                         </Storyboard>
                     </BeginStoryboard>
@@ -562,20 +635,157 @@
                     <BeginStoryboard>
                         <Storyboard>
                             <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                             To="1" Duration="0:0:0.3"
-                                             EasingFunction="{StaticResource EaseOutBack}" />
+                                             To="1" Duration="0:0:0.18"
+                                             EasingFunction="{StaticResource EaseOutQuad}" />
                             <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-                                             To="1" Duration="0:0:0.3"
-                                             EasingFunction="{StaticResource EaseOutBack}" />
+                                             To="1" Duration="0:0:0.18"
+                                             EasingFunction="{StaticResource EaseOutQuad}" />
                         </Storyboard>
                     </BeginStoryboard>
                 </EventTrigger>
             </Style.Triggers>
         </Style>
+
+        <Style x:Key="MetricCardStyle" TargetType="Border" BasedOn="{StaticResource ListCardStyle}">
+            <Setter Property="Padding" Value="24,26" />
+            <Setter Property="CornerRadius" Value="22" />
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#8A1A3042" Offset="0" />
+                        <GradientStop Color="#7E112231" Offset="1" />
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DarkComboBoxItemStyle" TargetType="{x:Type ComboBoxItem}">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="14,10" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                        <Border x:Name="ItemBorder"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="12">
+                            <ContentPresenter HorizontalAlignment="Left"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#22354B" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#284A64" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DarkFilterComboBoxStyle" TargetType="{x:Type ComboBox}">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+            <Setter Property="Background" Value="#132131" />
+            <Setter Property="BorderBrush" Value="#2A445A" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="16,12,40,12" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="ItemContainerStyle" Value="{StaticResource DarkComboBoxItemStyle}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ComboBox}">
+                        <Grid>
+                            <Border x:Name="OuterBorder"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="18">
+                                <Grid>
+                                    <ContentPresenter Margin="{TemplateBinding Padding}"
+                                                      VerticalAlignment="Center"
+                                                      HorizontalAlignment="Left"
+                                                      Content="{TemplateBinding SelectionBoxItem}"
+                                                      ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" />
+                                    <Path Width="12" Height="8"
+                                          HorizontalAlignment="Right"
+                                          VerticalAlignment="Center"
+                                          Margin="0,0,16,0"
+                                          Stroke="{StaticResource TextSecondaryBrush}"
+                                          StrokeThickness="2"
+                                          Data="M1,1 L6,6 L11,1"
+                                          StrokeStartLineCap="Round"
+                                          StrokeEndLineCap="Round" />
+                                </Grid>
+                            </Border>
+                            <Popup x:Name="Popup"
+                                   Placement="Bottom"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   PopupAnimation="Fade">
+                                <Border Margin="0,8,0,0"
+                                        MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                        Background="#101B28"
+                                        BorderBrush="#33506A"
+                                        BorderThickness="1"
+                                        CornerRadius="18"
+                                        Padding="8">
+                                    <ScrollViewer CanContentScroll="True"
+                                                  VerticalScrollBarVisibility="Auto">
+                                        <ItemsPresenter />
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#3C627E" />
+                                <Setter TargetName="OuterBorder" Property="Background" Value="#162739" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="HasItems" Value="False">
+                                <Setter Property="MinHeight" Value="44" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="GlassInputBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="#1AFFFFFF" />
+            <Setter Property="BorderBrush" Value="#2AFFFFFF" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="16" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+
+        <Style x:Key="GlassTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="14,10" />
+            <Setter Property="FontSize" Value="15" />
+        </Style>
+
+        <Style x:Key="GlassPasswordBoxStyle" TargetType="PasswordBox">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="14,10" />
+            <Setter Property="FontSize" Value="20" />
+        </Style>
     </Window.Resources>
 
     <Border x:Name="RootBorder" CornerRadius="0" Margin="0"
-            Background="{StaticResource PageBrush}" BorderBrush="#1A2B3B" BorderThickness="0">
+            Background="{StaticResource WindowBackgroundBrush}" BorderBrush="#1A2B3B" BorderThickness="0">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="38" />
@@ -586,8 +796,8 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Border Grid.ColumnSpan="2" x:Name="TopBar" Background="#0C1218"
-                BorderBrush="Transparent" BorderThickness="0">
+        <Border Grid.ColumnSpan="2" x:Name="TopBar" Background="#330C1823"
+                BorderBrush="#14FFFFFF" BorderThickness="0,0,0,1">
             <Grid>
                 <Border x:Name="TopBarShimmer" Opacity="0" IsHitTestVisible="False">
                     <Border.Background>
@@ -652,39 +862,102 @@
                         </Grid>
                     </StackPanel>
 
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
-                                VerticalAlignment="Center" Margin="0,0,4,0">
-                        <Button Content="&#x2013;" Click="OnMinimizeClick"
+                    <Border HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Margin="0,0,6,0"
+                            Padding="2"
+                            CornerRadius="12"
+                            BorderBrush="#18FFFFFF"
+                            BorderThickness="1"
+                            Background="#0E151E">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Click="OnMinimizeClick"
                                 WindowChrome.IsHitTestVisibleInChrome="True"
                                 Style="{StaticResource AnimatedTitleBarButtonStyle}"
-                                Width="38" Height="28" FontSize="14" FontWeight="Normal"
-                                Foreground="#9CB0C4" />
-                        <Button Content="&#x25A1;" Click="OnMaximizeClick"
+                                Width="36" Height="24"
+                                Foreground="#9CB0C4">
+                            <Grid Width="12" Height="12"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  SnapsToDevicePixels="True">
+                                <Rectangle Width="11"
+                                           Height="1.2"
+                                           RadiusX="0.6"
+                                           RadiusY="0.6"
+                                           Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                           VerticalAlignment="Center" />
+                            </Grid>
+                        </Button>
+                        <Button Click="OnMaximizeClick"
                                 WindowChrome.IsHitTestVisibleInChrome="True"
                                 Style="{StaticResource AnimatedTitleBarButtonStyle}"
-                                Width="38" Height="28" FontSize="11" FontWeight="Normal"
-                                Foreground="#9CB0C4" />
-                        <Button Content="&#x2715;" Click="OnCloseClick"
+                                Width="36" Height="24"
+                                Margin="2,0,0,0"
+                                Foreground="#9CB0C4">
+                            <Grid Width="12" Height="12"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  SnapsToDevicePixels="True">
+                                <Rectangle Width="8"
+                                           Height="8"
+                                           Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                           StrokeThickness="1"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Margin="1,0,0,0" />
+                                <Rectangle Width="8"
+                                           Height="8"
+                                           Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                           StrokeThickness="1"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Margin="-1,2,0,0" />
+                            </Grid>
+                        </Button>
+                        <Button Click="OnCloseClick"
                                 WindowChrome.IsHitTestVisibleInChrome="True"
                                 Style="{StaticResource AnimatedCloseButtonStyle}"
-                                Width="38" Height="28" FontSize="12" FontWeight="Normal"
-                                Foreground="#FF7D66" />
+                                Width="36" Height="24"
+                                Margin="2,0,0,0"
+                                Foreground="#FF958C">
+                            <Grid Width="12" Height="12"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  SnapsToDevicePixels="True">
+                                <Path Data="M2,2 L10,10 M10,2 L2,10"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                      StrokeThickness="1.4"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center" />
+                            </Grid>
+                        </Button>
                     </StackPanel>
+                    </Border>
                 </Grid>
             </Grid>
         </Border>
 
-        <Border x:Name="SidebarBorder" Grid.Row="1" Background="{StaticResource SidebarBrush}" BorderBrush="#1A2B3B" BorderThickness="0,0,1,0" Padding="18">
+        <Border x:Name="SidebarBorder" Grid.Row="1" Background="{StaticResource SidebarBrush}" BorderBrush="#22FFFFFF" BorderThickness="0,0,1,0" Padding="20">
             <StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,8,0,6">
-                    <Border Width="40" Height="40" CornerRadius="12" Background="#173040" Margin="0,0,12,0">
+                <StackPanel Orientation="Horizontal" Margin="0,6,0,8">
+                    <Border Width="46" Height="46" CornerRadius="16" Background="#224865" Margin="0,0,12,0">
                         <Grid>
-                            <Path Data="M12,6 L28,6 L28,16 C28,22 24,28 20,30 C16,28 12,22 12,16 Z" Fill="{StaticResource AccentBrush}" Stretch="Fill" Margin="8" />
+                            <Path Data="M12,6 L28,6 L28,16 C28,22 24,28 20,30 C16,28 12,22 12,16 Z" Fill="{StaticResource AccentBrush}" Stretch="Fill" Margin="9" />
                         </Grid>
                     </Border>
-                    <TextBlock Text="ParentalGuard" Foreground="{StaticResource TextPrimaryBrush}" FontSize="28" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="ParentalGuard" Foreground="{StaticResource TextPrimaryBrush}" FontSize="24" FontWeight="SemiBold" />
+                        <TextBlock Text="Family shield panel" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
+                    </StackPanel>
                 </StackPanel>
-                <TextBlock Text="Live app and website usage" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,24" />
+                <Border Margin="0,0,0,22" Padding="14" CornerRadius="18" Background="#12FFFFFF" BorderBrush="#18FFFFFF" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="Live app and website usage" Foreground="{StaticResource TextPrimaryBrush}" FontSize="14" FontWeight="SemiBold" />
+                        <TextBlock Text="Fluid monitoring, quick controls, and a softer glass dashboard." Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,6,0,0" />
+                    </StackPanel>
+                </Border>
 
                 <Button Style="{StaticResource NavButtonStyle}" Background="{Binding OverviewButtonBrush}" Content="Overview" Click="OnOverviewClick" />
                 <Button Style="{StaticResource NavButtonStyle}" Background="{Binding UsageButtonBrush}" Margin="0,8,0,0" Content="Usage" Click="OnUsageClick" />
@@ -694,10 +967,26 @@
 
         <Grid Grid.Row="1" Grid.Column="1">
             <Canvas IsHitTestVisible="False">
-                <Ellipse Width="360" Height="360" Canvas.Left="-120" Canvas.Top="-90" Opacity="0.28">
+                <Ellipse x:Name="AmbientOrbOne" Width="420" Height="420" Canvas.Left="-150" Canvas.Top="-130" Opacity="0.34">
                     <Ellipse.Fill>
                         <RadialGradientBrush>
-                            <GradientStop Color="#214666" Offset="0" />
+                            <GradientStop Color="#2B57B5D8" Offset="0" />
+                            <GradientStop Color="#00000000" Offset="1" />
+                        </RadialGradientBrush>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <Ellipse x:Name="AmbientOrbTwo" Width="520" Height="520" Canvas.Left="520" Canvas.Top="-120" Opacity="0.28">
+                    <Ellipse.Fill>
+                        <RadialGradientBrush>
+                            <GradientStop Color="#246DE1C8" Offset="0" />
+                            <GradientStop Color="#00000000" Offset="1" />
+                        </RadialGradientBrush>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <Ellipse x:Name="AmbientOrbThree" Width="480" Height="480" Canvas.Left="720" Canvas.Top="360" Opacity="0.2">
+                    <Ellipse.Fill>
+                        <RadialGradientBrush>
+                            <GradientStop Color="#28FF9C8B" Offset="0" />
                             <GradientStop Color="#00000000" Offset="1" />
                         </RadialGradientBrush>
                     </Ellipse.Fill>
@@ -712,9 +1001,15 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="{Binding PageTitle}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="34" FontWeight="SemiBold" />
-                            <Border Grid.Column="1" Padding="16,10" Background="#132532" CornerRadius="14" VerticalAlignment="Top">
-                                <TextBlock Text="{Binding CurrentClockText}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="14" FontWeight="SemiBold" />
+                            <StackPanel>
+                                <TextBlock Text="{Binding PageTitle}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="34" FontWeight="SemiBold" />
+                                <TextBlock Text="Quiet glass surfaces, faster feedback, and calmer motion across the whole control panel." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0" />
+                            </StackPanel>
+                            <Border Grid.Column="1" Padding="18,12" Background="#16FFFFFF" CornerRadius="18" VerticalAlignment="Top" BorderBrush="#24FFFFFF" BorderThickness="1">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="8" Height="8" Fill="{StaticResource AccentBrush}" Margin="0,0,10,0" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding CurrentClockText}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="14" FontWeight="SemiBold" />
+                                </StackPanel>
                             </Border>
                         </Grid>
                     </Border>
@@ -732,21 +1027,21 @@
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
 
-                                    <Border Grid.Column="0" Margin="0,0,10,0" Padding="20,24" CornerRadius="16" Background="#162A3A" BorderBrush="#213547" BorderThickness="1">
+                                    <Border Grid.Column="0" Margin="0,0,10,0" Style="{StaticResource MetricCardStyle}">
                                         <StackPanel HorizontalAlignment="Center">
                                             <TextBlock Text="Today" Foreground="{StaticResource TextSecondaryBrush}" FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Center" />
                                             <TextBlock Text="{Binding TodayTotalText}" Foreground="{StaticResource AccentBrush}" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,10,0,0" />
                                         </StackPanel>
                                     </Border>
 
-                                    <Border Grid.Column="1" Margin="10,0,10,0" Padding="20,24" CornerRadius="16" Background="#162A3A" BorderBrush="#213547" BorderThickness="1">
+                                    <Border Grid.Column="1" Margin="10,0,10,0" Style="{StaticResource MetricCardStyle}">
                                         <StackPanel HorizontalAlignment="Center">
                                             <TextBlock Text="Yesterday" Foreground="{StaticResource TextSecondaryBrush}" FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Center" />
                                             <TextBlock Text="{Binding YesterdayTotalText}" Foreground="{StaticResource AccentBlueBrush}" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,10,0,0" />
                                         </StackPanel>
                                     </Border>
 
-                                    <Border Grid.Column="2" Margin="10,0,0,0" Padding="20,24" CornerRadius="16" Background="#162A3A" BorderBrush="#213547" BorderThickness="1">
+                                    <Border Grid.Column="2" Margin="10,0,0,0" Style="{StaticResource MetricCardStyle}">
                                         <StackPanel HorizontalAlignment="Center">
                                             <TextBlock Text="Last 7 Days" Foreground="{StaticResource TextSecondaryBrush}" FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Center" />
                                             <TextBlock Text="{Binding LastWeekTotalText}" Foreground="{StaticResource AccentCoralBrush}" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,10,0,0" />
@@ -760,26 +1055,189 @@
                     <Grid x:Name="UsageGrid" Visibility="{Binding UsageVisibility}">
                         <Border x:Name="UsageCombinedCard" Style="{StaticResource CardStyle}" Margin="0,0,0,22">
                             <StackPanel>
-                                <TextBlock Text="Usage" Foreground="{StaticResource TextPrimaryBrush}" FontSize="24" FontWeight="SemiBold" />
-                                <TextBlock Margin="0,8,0,0" Text="All apps and website domains in one list. Each website domain is its own item." Foreground="{StaticResource TextSecondaryBrush}" />
+                                <TextBlock Text="App Usage Stats" Foreground="{StaticResource TextPrimaryBrush}" FontSize="24" FontWeight="SemiBold" />
+                                <TextBlock Margin="0,8,0,0" Text="A darker usage dashboard with hourly screen-time patterns and ranked activity share." Foreground="{StaticResource TextSecondaryBrush}" />
 
-                                <ItemsControl Margin="0,18,0,0" ItemsSource="{Binding AllUsage}">
+                                <Grid Margin="0,22,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox Grid.Column="0"
+                                              Margin="0,0,10,0"
+                                              ItemsSource="{Binding UsagePeriodOptions}"
+                                              SelectedItem="{Binding SelectedUsagePeriod}"
+                                              Style="{StaticResource DarkFilterComboBoxStyle}" />
+                                    <ComboBox Grid.Column="1"
+                                              Margin="10,0,0,0"
+                                              ItemsSource="{Binding UsageCategoryOptions}"
+                                              SelectedItem="{Binding SelectedUsageCategory}"
+                                              Style="{StaticResource DarkFilterComboBoxStyle}" />
+                                </Grid>
+
+                                <Border Margin="0,22,0,0"
+                                        Padding="26"
+                                        CornerRadius="28"
+                                        BorderBrush="#30516C"
+                                        BorderThickness="1">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#B3172535" Offset="0" />
+                                            <GradientStop Color="#A0111C29" Offset="1" />
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <StackPanel>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding UsageTotalText}"
+                                                           Foreground="{StaticResource AccentBrush}"
+                                                           FontSize="34"
+                                                           FontWeight="Bold" />
+                                                <TextBlock Margin="0,6,0,0"
+                                                           Text="{Binding UsagePeriodTitle}"
+                                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                                           FontSize="20"
+                                                           FontWeight="SemiBold" />
+                                                <TextBlock Margin="0,8,0,0"
+                                                           Text="{Binding UsageSummaryText}"
+                                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                                           TextWrapping="Wrap" />
+                                            </StackPanel>
+                                            <Border Grid.Column="1"
+                                                    Padding="14,10"
+                                                    CornerRadius="16"
+                                                    Background="#163248"
+                                                    BorderBrush="#2B5872"
+                                                    BorderThickness="1"
+                                                    VerticalAlignment="Top">
+                                                <StackPanel>
+                                                    <TextBlock Text="Hourly peak"
+                                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                                               FontSize="12"
+                                                               FontWeight="SemiBold" />
+                                                    <TextBlock Margin="0,6,0,0"
+                                                               Text="{Binding UsagePeakHourText}"
+                                                               Foreground="{StaticResource TextPrimaryBrush}"
+                                                               FontSize="14"
+                                                               FontWeight="SemiBold" />
+                                                </StackPanel>
+                                            </Border>
+                                        </Grid>
+
+                                        <ItemsControl Margin="0,26,0,0" ItemsSource="{Binding HourlyUsageBars}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <UniformGrid Rows="1" Columns="24" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate DataType="{x:Type local:HourlyUsageBar}">
+                                                    <Grid Height="200" Margin="3,0" ToolTip="{Binding AccessibilityLabel}">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="*" />
+                                                            <RowDefinition Height="Auto" />
+                                                        </Grid.RowDefinitions>
+                                                        <Border Grid.Row="0"
+                                                                VerticalAlignment="Bottom"
+                                                                Height="{Binding Height}"
+                                                                Background="{Binding FillBrush}"
+                                                                CornerRadius="10,10,4,4"
+                                                                BorderBrush="#16FFFFFF"
+                                                                BorderThickness="1" />
+                                                        <TextBlock Grid.Row="1"
+                                                                   Margin="0,10,0,0"
+                                                                   Text="{Binding Label}"
+                                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                                   FontSize="11"
+                                                                   HorizontalAlignment="Center" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <TextBlock Margin="0,10,0,0"
+                                                   Text="{Binding UsageChartHintText}"
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   FontSize="13" />
+                                    </StackPanel>
+                                </Border>
+
+                                <TextBlock Margin="0,24,0,14"
+                                           Text="Apps &amp; sites"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           FontSize="22"
+                                           FontWeight="SemiBold" />
+
+                                <ItemsControl ItemsSource="{Binding AllUsage}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="{x:Type local:UsageEntry}">
-                                            <Border Margin="0,0,0,12" Style="{StaticResource ListCardStyle}">
+                                            <Border Margin="0,0,0,14" Style="{StaticResource ListCardStyle}">
                                                 <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*" />
-                                                        <ColumnDefinition Width="Auto" />
-                                                    </Grid.ColumnDefinitions>
-                                                    <StackPanel>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="Auto" />
+                                                    </Grid.RowDefinitions>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
                                                         <StackPanel Orientation="Horizontal">
-                                                            <Ellipse Width="10" Height="10" Fill="{Binding AccentBrush}" Margin="0,0,10,0" VerticalAlignment="Center" />
-                                                            <TextBlock Text="{Binding Name}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="17" FontWeight="SemiBold" />
+                                                            <Border Width="46"
+                                                                    Height="46"
+                                                                    CornerRadius="16"
+                                                                    Background="{Binding AccentBrush}">
+                                                                <TextBlock Text="{Binding Initial}"
+                                                                           Foreground="#FF08121D"
+                                                                           FontSize="18"
+                                                                           FontWeight="Bold"
+                                                                           HorizontalAlignment="Center"
+                                                                           VerticalAlignment="Center" />
+                                                            </Border>
+                                                            <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
+                                                                <TextBlock Text="{Binding Name}"
+                                                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                                                           FontSize="18"
+                                                                           FontWeight="SemiBold" />
+                                                                <TextBlock Margin="0,4,0,0"
+                                                                           Text="{Binding Category}"
+                                                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                                                           FontSize="13"
+                                                                           FontWeight="SemiBold" />
+                                                            </StackPanel>
                                                         </StackPanel>
-                                                        <TextBlock Margin="0,8,0,0" Text="{Binding Subtitle}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
-                                                    </StackPanel>
-                                                    <TextBlock Grid.Column="1" Margin="16,0,0,0" Text="{Binding DurationText}" Foreground="{Binding AccentBrush}" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                                        <StackPanel Grid.Column="1" Margin="18,0,0,0" VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding DurationText}"
+                                                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                                                       FontSize="18"
+                                                                       FontWeight="Bold"
+                                                                       HorizontalAlignment="Right" />
+                                                            <TextBlock Margin="0,4,0,0"
+                                                                       Text="{Binding SharePercentText}"
+                                                                       Foreground="{Binding AccentBrush}"
+                                                                       FontSize="14"
+                                                                       FontWeight="SemiBold"
+                                                                       HorizontalAlignment="Right" />
+                                                        </StackPanel>
+                                                    </Grid>
+                                                    <Grid Grid.Row="1" Margin="0,18,0,0">
+                                                        <Border Height="10"
+                                                                CornerRadius="5"
+                                                                Background="#173042" />
+                                                        <Border Height="10"
+                                                                CornerRadius="5"
+                                                                Background="{Binding AccentBrush}"
+                                                                HorizontalAlignment="Stretch"
+                                                                RenderTransformOrigin="0,0.5">
+                                                            <Border.RenderTransform>
+                                                                <ScaleTransform ScaleX="{Binding ShareOfTotal}" />
+                                                            </Border.RenderTransform>
+                                                        </Border>
+                                                    </Grid>
                                                 </Grid>
                                             </Border>
                                         </DataTemplate>
@@ -828,11 +1286,10 @@
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                                         <TextBlock Text="Limit" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0" VerticalAlignment="Center" />
-                                                        <Border Background="#132532" BorderBrush="{StaticResource BorderBrushStrong}" BorderThickness="1" CornerRadius="12">
+                                                        <Border Background="#14FFFFFF" BorderBrush="#24FFFFFF" BorderThickness="1" CornerRadius="14">
                                                             <TextBox Width="56" Text="{Binding MaxMinutes, UpdateSourceTrigger=PropertyChanged}"
-                                                                     Padding="10,6" Background="Transparent"
-                                                                     Foreground="{StaticResource TextPrimaryBrush}"
-                                                                     BorderThickness="0" HorizontalContentAlignment="Center" />
+                                                                     Style="{StaticResource GlassTextBoxStyle}"
+                                                                     HorizontalContentAlignment="Center" />
                                                         </Border>
                                                         <TextBlock Text="min" Foreground="{StaticResource TextSecondaryBrush}" Margin="6,0,0,0" VerticalAlignment="Center" />
                                                     </StackPanel>
@@ -895,9 +1352,10 @@
                                 <Separator Margin="0,24,0,0" Background="{StaticResource BorderBrushStrong}" />
 
                                 <TextBlock Text="Danger zone" Foreground="{StaticResource AccentCoralBrush}" FontSize="20" FontWeight="SemiBold" Margin="0,18,0,8" />
-                                <TextBlock Text="Resetting removes all access rules and restores defaults. This fixes issues where legitimate sites are being blocked unexpectedly." Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12" />
+                                <TextBlock Text="Resetting removes all access rules. Use this if you want to clear the configuration and start over." Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12" />
                                 <Button Content="Reset all settings"
                                         Style="{StaticResource RoundedActionButtonStyle}"
+                                        Background="{StaticResource DangerButtonBrush}"
                                         Width="160" Margin="0,0,0,0"
                                         HorizontalAlignment="Left"
                                         Click="OnResetAllSettingsClick" />
@@ -915,10 +1373,10 @@
                     VerticalAlignment="Bottom"
                     Margin="0,0,28,28"
                     Padding="16,12"
-                    Background="#162734"
-                    BorderBrush="{StaticResource AccentCoralBrush}"
+                    Background="#B0162434"
+                    BorderBrush="#7AFFB39F"
                     BorderThickness="1"
-                    CornerRadius="16"
+                    CornerRadius="20"
                     RenderTransformOrigin="0.5,0.5">
                 <Border.RenderTransform>
                     <TransformGroup>
@@ -934,12 +1392,12 @@
 
             <Grid x:Name="InputPopupOverlay"
                   Visibility="Collapsed">
-                <Border Background="#AA000000" />
+                <Border Background="#8A050B11" />
                 <Border Width="400" Height="240"
                         Background="{StaticResource CardBrush}"
-                        BorderBrush="{StaticResource BorderBrushStrong}"
+                        BorderBrush="#36FFFFFF"
                         BorderThickness="1"
-                        CornerRadius="22"
+                        CornerRadius="28"
                         VerticalAlignment="Center"
                         HorizontalAlignment="Center"
                         Effect="{StaticResource CardShadow}">
@@ -954,13 +1412,9 @@
                                    Text="Please enter the name."
                                    Foreground="{StaticResource TextSecondaryBrush}"
                                    Margin="0,0,0,24" />
-                        <Border BorderBrush="{StaticResource BorderBrushStrong}" BorderThickness="1" CornerRadius="8" Width="336" Margin="0,0,0,24">
+                        <Border Style="{StaticResource GlassInputBorderStyle}" Width="336" Margin="0,0,0,24">
                             <TextBox x:Name="PopupInput"
-                                     Padding="12,8"
-                                     Background="#132532"
-                                     Foreground="{StaticResource TextPrimaryBrush}"
-                                     BorderThickness="0"
-                                     FontSize="16" />
+                                     Style="{StaticResource GlassTextBoxStyle}" />
                         </Border>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                             <Button Content="Cancel"
@@ -980,12 +1434,12 @@
 
             <Grid x:Name="PinPopupOverlay"
                   Visibility="Collapsed">
-                <Border Background="#AA000000" />
+                <Border Background="#8A050B11" />
                 <Border Width="380" Height="260"
                         Background="{StaticResource CardBrush}"
-                        BorderBrush="{StaticResource AccentBrush}"
+                        BorderBrush="#4E71E4C3"
                         BorderThickness="1"
-                        CornerRadius="22"
+                        CornerRadius="28"
                         VerticalAlignment="Center"
                         HorizontalAlignment="Center"
                         Effect="{StaticResource CardShadow}">
@@ -999,13 +1453,9 @@
                                    Text="PIN required to access settings."
                                    Foreground="{StaticResource TextSecondaryBrush}"
                                    Margin="0,0,0,20" />
-                        <Border BorderBrush="{StaticResource BorderBrushStrong}" BorderThickness="1" CornerRadius="8" Margin="0,0,0,8">
+                        <Border Style="{StaticResource GlassInputBorderStyle}" Margin="0,0,0,8">
                             <PasswordBox x:Name="PinInput"
-                                         Padding="12,8"
-                                         Background="#132532"
-                                         Foreground="{StaticResource TextPrimaryBrush}"
-                                         BorderThickness="0"
-                                         FontSize="20"
+                                         Style="{StaticResource GlassPasswordBoxStyle}"
                                          HorizontalContentAlignment="Center"
                                          MaxLength="4"
                                          PasswordChar="*" />
@@ -1035,12 +1485,12 @@
 
             <Grid x:Name="ResetConfirmOverlay"
                   Visibility="Collapsed">
-                <Border Background="#AA000000" />
+                <Border Background="#8A050B11" />
                 <Border Width="400" Height="200"
                         Background="{StaticResource CardBrush}"
-                        BorderBrush="{StaticResource AccentCoralBrush}"
+                        BorderBrush="#5EFF8A72"
                         BorderThickness="1"
-                        CornerRadius="22"
+                        CornerRadius="28"
                         VerticalAlignment="Center"
                         HorizontalAlignment="Center"
                         Effect="{StaticResource CardShadow}">
@@ -1063,6 +1513,7 @@
                                     Click="OnResetCancelClick" />
                             <Button Content="Reset"
                                     Style="{StaticResource RoundedActionButtonStyle}"
+                                    Background="{StaticResource DangerButtonBrush}"
                                     Width="100"
                                     Click="OnResetConfirmClick" />
                         </StackPanel>

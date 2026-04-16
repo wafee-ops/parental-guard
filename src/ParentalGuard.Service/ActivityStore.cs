@@ -12,7 +12,7 @@ public sealed class ActivityStore
         Directory.CreateDirectory(Path.GetDirectoryName(databasePath)!);
         _connectionString = new SqliteConnectionStringBuilder { DataSource = databasePath }.ToString();
         EnsureDatabase();
-        EnsureDefaultRules();
+        RemoveLegacyDemoRulesIfPresent();
     }
 
     public void RecordSample(ActivitySample sample)
@@ -21,9 +21,11 @@ public sealed class ActivityStore
         connection.Open();
 
         RecordUsage(connection, sample.ObservedAt.Date, "app", sample.AppName, sample.AppCategory, sample.AppSubtitle, 1);
+        RecordHourlyUsage(connection, sample.ObservedAt, "app", sample.AppName, sample.AppCategory, sample.AppSubtitle, 1);
         if (!string.IsNullOrWhiteSpace(sample.WebsiteDomain))
         {
             RecordUsage(connection, sample.ObservedAt.Date, "website", NormalizeWebsite(sample.WebsiteDomain!), sample.WebsiteCategory ?? "General", sample.WebsiteSubtitle ?? sample.WebsiteDomain!, 1);
+            RecordHourlyUsage(connection, sample.ObservedAt, "website", NormalizeWebsite(sample.WebsiteDomain!), sample.WebsiteCategory ?? "General", sample.WebsiteSubtitle ?? sample.WebsiteDomain!, 1);
         }
     }
 
@@ -98,7 +100,7 @@ public sealed class ActivityStore
         using var existsCommand = connection.CreateCommand();
         existsCommand.CommandText = "SELECT COUNT(1) FROM block_rules WHERE target_type = $type AND target_key = $key;";
         existsCommand.Parameters.AddWithValue("$type", targetType);
-        existsCommand.Parameters.AddWithValue("$key", targetKey);
+        existsCommand.Parameters.AddWithValue("$key", NormalizeRuleKey(targetType, targetKey));
         if (Convert.ToInt32(existsCommand.ExecuteScalar()) > 0)
         {
             return false;
@@ -107,7 +109,7 @@ public sealed class ActivityStore
         using var insertCommand = connection.CreateCommand();
         insertCommand.CommandText = "INSERT INTO block_rules (target_type, target_key, display_name, is_enabled, max_minutes, list_type) VALUES ($type, $key, $display, 1, $minutes, $list);";
         insertCommand.Parameters.AddWithValue("$type", targetType);
-        insertCommand.Parameters.AddWithValue("$key", targetKey);
+        insertCommand.Parameters.AddWithValue("$key", NormalizeRuleKey(targetType, targetKey));
         insertCommand.Parameters.AddWithValue("$display", displayName);
         insertCommand.Parameters.AddWithValue("$minutes", maxMinutes);
         insertCommand.Parameters.AddWithValue("$list", listType);
@@ -123,7 +125,7 @@ public sealed class ActivityStore
         command.CommandText = "UPDATE block_rules SET list_type = $list WHERE target_type = $type AND target_key = $key;";
         command.Parameters.AddWithValue("$list", listType);
         command.Parameters.AddWithValue("$type", targetType);
-        command.Parameters.AddWithValue("$key", targetKey);
+        command.Parameters.AddWithValue("$key", NormalizeRuleKey(targetType, targetKey));
         command.ExecuteNonQuery();
     }
 
@@ -138,7 +140,7 @@ public sealed class ActivityStore
             WHERE target_type = $type AND target_key = $key;
             """;
         command.Parameters.AddWithValue("$type", targetType);
-        command.Parameters.AddWithValue("$key", targetKey);
+        command.Parameters.AddWithValue("$key", NormalizeRuleKey(targetType, targetKey));
         command.ExecuteNonQuery();
     }
 
@@ -160,6 +162,22 @@ public sealed class ActivityStore
             );
             """;
         usageCommand.ExecuteNonQuery();
+
+        using var usageHourCommand = connection.CreateCommand();
+        usageHourCommand.CommandText =
+            """
+            CREATE TABLE IF NOT EXISTS usage_hour_records (
+                usage_hour TEXT NOT NULL,
+                usage_date TEXT NOT NULL,
+                item_type TEXT NOT NULL,
+                item_key TEXT NOT NULL,
+                category TEXT NOT NULL,
+                subtitle TEXT NOT NULL,
+                seconds INTEGER NOT NULL,
+                PRIMARY KEY (usage_hour, item_type, item_key)
+            );
+            """;
+        usageHourCommand.ExecuteNonQuery();
 
         using var rulesCommand = connection.CreateCommand();
         rulesCommand.CommandText =
@@ -184,14 +202,42 @@ public sealed class ActivityStore
         catch { }
     }
 
-    private void EnsureDefaultRules()
+    private void RemoveLegacyDemoRulesIfPresent()
     {
-        EnsureRuleExists("website", "youtube.com", "youtube.com", 60, "allowed");
-        EnsureRuleExists("website", "x.com", "x.com", 30, "allowed");
-        EnsureRuleExists("website", "discord.com", "discord.com", 30, "allowed");
-        EnsureRuleExists("app", "youtube", "YouTube app", 60, "allowed");
-        EnsureRuleExists("app", "twitter", "Twitter/X app", 30, "allowed");
-        EnsureRuleExists("app", "discord", "Discord app", 30, "allowed");
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+
+        using var countCommand = connection.CreateCommand();
+        countCommand.CommandText = "SELECT COUNT(1) FROM block_rules;";
+        var totalCount = Convert.ToInt32(countCommand.ExecuteScalar());
+        if (totalCount != LegacyDemoRules.Count)
+        {
+            return;
+        }
+
+        using var matchesCommand = connection.CreateCommand();
+        matchesCommand.CommandText =
+            $"""
+            SELECT COUNT(1)
+            FROM block_rules
+            WHERE (target_type, target_key) IN ({string.Join(", ", LegacyDemoRules.Select((_, index) => $"($type{index}, $key{index})"))});
+            """;
+
+        for (var i = 0; i < LegacyDemoRules.Count; i++)
+        {
+            matchesCommand.Parameters.AddWithValue($"$type{i}", LegacyDemoRules[i].TargetType);
+            matchesCommand.Parameters.AddWithValue($"$key{i}", LegacyDemoRules[i].TargetKey);
+        }
+
+        var matchedCount = Convert.ToInt32(matchesCommand.ExecuteScalar());
+        if (matchedCount != LegacyDemoRules.Count)
+        {
+            return;
+        }
+
+        using var deleteCommand = connection.CreateCommand();
+        deleteCommand.CommandText = "DELETE FROM block_rules;";
+        deleteCommand.ExecuteNonQuery();
     }
 
     private static void RecordUsage(SqliteConnection connection, DateTime date, string type, string key, string category, string subtitle, int seconds)
@@ -213,8 +259,54 @@ public sealed class ActivityStore
         command.ExecuteNonQuery();
     }
 
+    private static void RecordHourlyUsage(SqliteConnection connection, DateTime observedAt, string type, string key, string category, string subtitle, int seconds)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            INSERT INTO usage_hour_records (usage_hour, usage_date, item_type, item_key, category, subtitle, seconds)
+            VALUES ($hour, $date, $type, $key, $category, $subtitle, $seconds)
+            ON CONFLICT(usage_hour, item_type, item_key)
+            DO UPDATE SET subtitle = excluded.subtitle, category = excluded.category, seconds = usage_hour_records.seconds + excluded.seconds;
+            """;
+        command.Parameters.AddWithValue("$hour", observedAt.ToString("yyyy-MM-dd HH:00:00"));
+        command.Parameters.AddWithValue("$date", observedAt.ToString("yyyy-MM-dd"));
+        command.Parameters.AddWithValue("$type", type);
+        command.Parameters.AddWithValue("$key", key);
+        command.Parameters.AddWithValue("$category", category);
+        command.Parameters.AddWithValue("$subtitle", subtitle);
+        command.Parameters.AddWithValue("$seconds", seconds);
+        command.ExecuteNonQuery();
+    }
+
     private static string NormalizeWebsite(string domain) =>
         domain.StartsWith("www.", StringComparison.OrdinalIgnoreCase) ? domain[4..].ToLowerInvariant() : domain.ToLowerInvariant();
+
+    private static string NormalizeRuleKey(string targetType, string key)
+    {
+        var normalized = key.Trim().ToLowerInvariant();
+        if (targetType == "website" && normalized.StartsWith("www.", StringComparison.Ordinal))
+        {
+            normalized = normalized[4..];
+        }
+
+        if (targetType == "app" && normalized.EndsWith(".exe", StringComparison.Ordinal))
+        {
+            normalized = normalized[..^4];
+        }
+
+        return normalized;
+    }
+
+    private static readonly IReadOnlyList<(string TargetType, string TargetKey)> LegacyDemoRules =
+    [
+        ("website", "youtube.com"),
+        ("website", "x.com"),
+        ("website", "discord.com"),
+        ("app", "youtube"),
+        ("app", "twitter"),
+        ("app", "discord")
+    ];
 
     private static bool MatchesAppRule(string targetKey, params string[] values)
     {

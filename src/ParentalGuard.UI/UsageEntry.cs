@@ -8,6 +8,7 @@ public sealed class UsageEntry : INotifyPropertyChanged
 {
     private int _seconds;
     private string _subtitle;
+    private double _shareOfTotal;
 
     public UsageEntry(string name, string category, int seconds, int limitMinutes, string subtitle, Brush accentBrush)
     {
@@ -24,6 +25,8 @@ public sealed class UsageEntry : INotifyPropertyChanged
     public string Name { get; }
 
     public string Category { get; }
+
+    public string Initial => string.IsNullOrWhiteSpace(Name) ? "?" : Name[..1].ToUpperInvariant();
 
     public int LimitMinutes { get; }
 
@@ -69,6 +72,24 @@ public sealed class UsageEntry : INotifyPropertyChanged
     public string DurationText => FormatDuration(Seconds);
 
     public string LimitText => $"Limit {LimitMinutes} min";
+
+    public double ShareOfTotal
+    {
+        get => _shareOfTotal;
+        set
+        {
+            if (Math.Abs(_shareOfTotal - value) < 0.0001)
+            {
+                return;
+            }
+
+            _shareOfTotal = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(SharePercentText));
+        }
+    }
+
+    public string SharePercentText => $"{ShareOfTotal * 100:0.#}%";
 
     public double UsagePercent => LimitMinutes <= 0 ? 0 : Math.Min(1, Seconds / (LimitMinutes * 60d));
 
