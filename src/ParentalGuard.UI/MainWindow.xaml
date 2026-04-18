@@ -519,131 +519,53 @@
         <Style x:Key="AnimatedTitleBarButtonStyle" TargetType="Button">
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Focusable" Value="False" />
-            <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
-            <Setter Property="RenderTransform">
-                <Setter.Value>
-                    <ScaleTransform ScaleX="1" ScaleY="1" />
-                </Setter.Value>
-            </Setter>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Grid>
-                            <Border x:Name="Chrome" CornerRadius="10"
-                                    BorderBrush="#1EFFFFFF" BorderThickness="1"
-                                    Background="{StaticResource TitleButtonBaseBrush}" />
-                            <Rectangle x:Name="Shine" RadiusX="9" RadiusY="9"
-                                       VerticalAlignment="Top" Height="10" Margin="1,1,1,0"
-                                       Opacity="0.75"
-                                       Fill="{StaticResource GlassHighlightBrush}" />
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,1" />
+                            <Border x:Name="Chrome"
+                                    CornerRadius="8"
+                                    Background="#00000000" />
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="{StaticResource TitleButtonHoverBrush}" />
-                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#30FFFFFF" />
+                                <Setter TargetName="Chrome" Property="Background" Value="#24303D" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="#101923" />
-                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#18FFFFFF" />
+                                <Setter TargetName="Chrome" Property="Background" Value="#18222D" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <EventTrigger RoutedEvent="MouseEnter">
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                             To="1.04" Duration="0:0:0.18"
-                                             EasingFunction="{StaticResource EaseOutCubic}" />
-                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-                                             To="1.04" Duration="0:0:0.18"
-                                             EasingFunction="{StaticResource EaseOutCubic}" />
-                        </Storyboard>
-                    </BeginStoryboard>
-                </EventTrigger>
-                <EventTrigger RoutedEvent="MouseLeave">
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                             To="1" Duration="0:0:0.18"
-                                             EasingFunction="{StaticResource EaseOutQuad}" />
-                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-                                             To="1" Duration="0:0:0.18"
-                                             EasingFunction="{StaticResource EaseOutQuad}" />
-                        </Storyboard>
-                    </BeginStoryboard>
-                </EventTrigger>
-            </Style.Triggers>
         </Style>
 
         <Style x:Key="AnimatedCloseButtonStyle" TargetType="Button">
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Focusable" Value="False" />
-            <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
-            <Setter Property="RenderTransform">
-                <Setter.Value>
-                    <ScaleTransform ScaleX="1" ScaleY="1" />
-                </Setter.Value>
-            </Setter>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Grid>
-                            <Border x:Name="Chrome" CornerRadius="10"
-                                    BorderBrush="#26B76A66" BorderThickness="1"
-                                    Background="{StaticResource TitleButtonBaseBrush}" />
-                            <Border x:Name="HoverBg" CornerRadius="10"
-                                    Background="#00FF7D66" />
-                            <Rectangle x:Name="Shine" RadiusX="9" RadiusY="9"
-                                       VerticalAlignment="Top" Height="10" Margin="1,1,1,0"
-                                       Opacity="0.75"
-                                       Fill="{StaticResource GlassHighlightBrush}" />
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,1" />
+                            <Border x:Name="Chrome"
+                                    CornerRadius="8"
+                                    Background="#00000000" />
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="{StaticResource TitleCloseHoverBrush}" />
-                                <Setter TargetName="HoverBg" Property="Background" Value="#12FF8E84" />
-                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#46FF8E84" />
+                                <Setter TargetName="Chrome" Property="Background" Value="#C9423A" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="#391E1D" />
-                                <Setter TargetName="HoverBg" Property="Background" Value="#20FF8E84" />
-                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#26FF8E84" />
+                                <Setter TargetName="Chrome" Property="Background" Value="#A6332D" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <EventTrigger RoutedEvent="MouseEnter">
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                             To="1.04" Duration="0:0:0.18"
-                                             EasingFunction="{StaticResource EaseOutCubic}" />
-                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-                                             To="1.04" Duration="0:0:0.18"
-                                             EasingFunction="{StaticResource EaseOutCubic}" />
-                        </Storyboard>
-                    </BeginStoryboard>
-                </EventTrigger>
-                <EventTrigger RoutedEvent="MouseLeave">
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                             To="1" Duration="0:0:0.18"
-                                             EasingFunction="{StaticResource EaseOutQuad}" />
-                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-                                             To="1" Duration="0:0:0.18"
-                                             EasingFunction="{StaticResource EaseOutQuad}" />
-                        </Storyboard>
-                    </BeginStoryboard>
-                </EventTrigger>
-            </Style.Triggers>
         </Style>
 
         <Style x:Key="MetricCardStyle" TargetType="Border" BasedOn="{StaticResource ListCardStyle}">
@@ -864,26 +786,24 @@
 
                     <Border HorizontalAlignment="Right"
                             VerticalAlignment="Center"
-                            Margin="0,0,6,0"
-                            Padding="2"
-                            CornerRadius="12"
-                            BorderBrush="#18FFFFFF"
-                            BorderThickness="1"
-                            Background="#0E151E">
+                            Margin="0,0,4,0"
+                            Padding="0"
+                            CornerRadius="10"
+                            Background="#081018">
                     <StackPanel Orientation="Horizontal">
                         <Button Click="OnMinimizeClick"
                                 WindowChrome.IsHitTestVisibleInChrome="True"
                                 Style="{StaticResource AnimatedTitleBarButtonStyle}"
-                                Width="36" Height="24"
-                                Foreground="#9CB0C4">
+                                Width="40" Height="28"
+                                Foreground="#C4D0DA">
                             <Grid Width="12" Height="12"
                                   HorizontalAlignment="Center"
                                   VerticalAlignment="Center"
                                   SnapsToDevicePixels="True">
-                                <Rectangle Width="11"
-                                           Height="1.2"
-                                           RadiusX="0.6"
-                                           RadiusY="0.6"
+                                <Rectangle Width="10"
+                                           Height="1"
+                                           RadiusX="0.5"
+                                           RadiusY="0.5"
                                            Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                            VerticalAlignment="Center" />
                             </Grid>
@@ -891,9 +811,8 @@
                         <Button Click="OnMaximizeClick"
                                 WindowChrome.IsHitTestVisibleInChrome="True"
                                 Style="{StaticResource AnimatedTitleBarButtonStyle}"
-                                Width="36" Height="24"
-                                Margin="2,0,0,0"
-                                Foreground="#9CB0C4">
+                                Width="40" Height="28"
+                                Foreground="#C4D0DA">
                             <Grid Width="12" Height="12"
                                   HorizontalAlignment="Center"
                                   VerticalAlignment="Center"
@@ -903,30 +822,27 @@
                                            Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                            StrokeThickness="1"
                                            HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"
-                                           Margin="1,0,0,0" />
+                                           VerticalAlignment="Center" />
                                 <Rectangle Width="8"
-                                           Height="8"
-                                           Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                           StrokeThickness="1"
+                                           Height="1"
+                                           Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                            HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"
-                                           Margin="-1,2,0,0" />
+                                           VerticalAlignment="Top"
+                                           Margin="0,2,0,0" />
                             </Grid>
                         </Button>
                         <Button Click="OnCloseClick"
                                 WindowChrome.IsHitTestVisibleInChrome="True"
                                 Style="{StaticResource AnimatedCloseButtonStyle}"
-                                Width="36" Height="24"
-                                Margin="2,0,0,0"
-                                Foreground="#FF958C">
+                                Width="40" Height="28"
+                                Foreground="#F5FAFF">
                             <Grid Width="12" Height="12"
                                   HorizontalAlignment="Center"
                                   VerticalAlignment="Center"
                                   SnapsToDevicePixels="True">
-                                <Path Data="M2,2 L10,10 M10,2 L2,10"
+                                <Path Data="M2.5,2.5 L9.5,9.5 M9.5,2.5 L2.5,9.5"
                                       Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                      StrokeThickness="1.4"
+                                      StrokeThickness="1.2"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round"
                                       HorizontalAlignment="Center"
